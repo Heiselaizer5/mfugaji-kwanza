@@ -14,7 +14,7 @@ broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80
 # --- Custom CSS Styling ---
 st.markdown(f"""
     <style>
-    /* 1. Sets full-screen broiler background */
+    /* 1. Full-screen background layout */
     .stApp {{
         background-image: url("{broiler_bg_url}");
         background-size: cover;
@@ -23,16 +23,16 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
 
-    /* Dark overlay to make everything highly readable */
+    /* Dark overlay to make everything readable */
     .stApp::before {{
         content: "";
         position: absolute;
         top: 0; left: 0; width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.45);
+        background-color: rgba(0, 0, 0, 0.5);
         z-index: 0;
     }}
 
-    /* Keeps all app text and buttons sitting on top of the background overlay */
+    /* Keeps elements above the dark overlay */
     [data-testid="stHeader"], .main .block-container {{
         z-index: 1;
     }}
@@ -59,23 +59,24 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* 3. Central Login Card (Holds all text and buttons neatly inside) */
-    .login-box {{
-        background-color: rgba(255, 255, 255, 0.96);
-        padding: 45px 40px;
-        border-radius: 20px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-        text-align: center;
+    /* 3. Target the Streamlit Container block to act as our card */
+    [data-testid="stVerticalBlockBorderWrapper"] {{
+        background-color: rgba(255, 255, 255, 0.96) !important;
+        padding: 40px !important;
+        border-radius: 20px !important;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.5) !important;
         max-width: 500px;
         margin: auto;
-        margin-top: 18vh;
+        margin-top: 15vh;
     }}
 
+    /* Text styling inside the card */
     .login-heading {{
-        color: #16300B; /* Premium Dark Green */
+        color: #16300B; 
         font-weight: 700;
         font-size: 28px;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-align: center;
         margin-bottom: 10px;
         line-height: 1.2;
     }}
@@ -83,11 +84,12 @@ st.markdown(f"""
     .login-subtext {{
         color: #555555;
         font-size: 15px;
-        margin-bottom: 35px;
+        text-align: center;
+        margin-bottom: 25px;
         font-family: 'Segoe UI', Arial, sans-serif;
     }}
 
-    /* Premium Green Buttons */
+    /* Custom Green Buttons */
     div.stButton > button {{
         background-color: #16300B !important;
         color: white !important;
@@ -103,14 +105,13 @@ st.markdown(f"""
     div.stButton > button:hover {{
         background-color: #244C13 !important;
         transform: scale(1.02);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }}
     </style>
     """, unsafe_allow_html=True)
 
-# --- Render Elements On-Screen ---
+# --- Render Elements ---
 
-# 1. Brand Logo on Top Left
+# 1. Title on top-left
 st.markdown("""
     <div class="brand-title">
         MFUGAJI KWANZA
@@ -118,27 +119,23 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# 2. Centered Layout Structure
-_, center_col, _ = st.columns([1, 1.6, 1])
+# 2. Centered Layout Column
+_, center_col, _ = st.columns([1, 1.5, 1])
 
 with center_col:
-    # Opening HTML Container for the Card
-    st.markdown('<div class="login-box">', unsafe_allow_html=True)
-    
-    # Texts inside the white popup box
-    st.markdown('<div class="login-heading">Unlock your farm\'s true profit potential</div>', unsafe_allow_html=True)
-    st.markdown('<div class="login-subtext">Log in or sign up to get started</div>', unsafe_allow_html=True)
-    
-    # Side-by-Side Grid Layout for buttons
-    btn_col1, btn_col2 = st.columns(2)
-    
-    with btn_col1:
-        if st.button("Log In", key="login_btn", use_container_width=True):
-            st.toast("Opening Login form...")
-            
-    with btn_col2:
-        if st.button("Sign Up", key="signup_btn", use_container_width=True):
-            st.toast("Opening Sign Up form...")
-
-    # Closing HTML Container
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Creating a native Streamlit container with a border. 
+    # Our CSS target above overrides this border to turn it into a beautiful white card.
+    with st.container(border=True):
+        st.markdown('<div class="login-heading">Unlock your farm\'s true profit potential</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-subtext">Log in or sign up to get started</div>', unsafe_allow_html=True)
+        
+        # Grid layout for buttons right inside the container
+        btn_col1, btn_col2 = st.columns(2)
+        
+        with btn_col1:
+            if st.button("Log In", key="login_btn", use_container_width=True):
+                st.toast("Opening Login form...")
+                
+        with btn_col2:
+            if st.button("Sign Up", key="signup_btn", use_container_width=True):
+                st.toast("Opening Sign Up form...")
