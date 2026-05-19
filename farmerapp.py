@@ -18,7 +18,7 @@ if "auth_mode" not in st.session_state:
 # --- High-Quality White Broiler Background Image Link ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
 
-# --- Translation Dictionary (Fixed to translate landing buttons too) ---
+# --- Translation Dictionary ---
 translations = {
     "English": {
         "subtitle": "Modern Solutions for Every Poultry Farmer",
@@ -64,11 +64,10 @@ translations = {
     }
 }
 
-# Access translations dynamically
 lang = st.session_state.language
 t = translations[lang]
 
-# --- Frontend CSS Layout Engine (White & Premium Green Theme) ---
+# --- Frontend CSS Layout Engine (White Card + Green Accents) ---
 st.markdown(f"""
     <style>
     /* Full-screen layout background */
@@ -124,9 +123,9 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* Solid White Card Container Box */
+    /* SOLID WHITE CARD CONTAINER BOX */
     .stForm, div[data-testid="stVerticalBlockBorderWrapper"] {{
-        background-color: rgba(255, 255, 255, 0.98) !important;
+        background-color: #FFFFFF !important;
         border: none !important;
         border-radius: 20px !important;
         box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
@@ -136,7 +135,7 @@ st.markdown(f"""
         margin-top: 15vh !important;
     }}
 
-    /* Premium Dark Green Headings */
+    /* PREMIUM GREEN TYPOGRAPHY FOR HEADINGS */
     .green-heading {{
         color: #16300B !important;
         font-weight: 800 !important;
@@ -148,21 +147,21 @@ st.markdown(f"""
     }}
     
     .card-subtext {{
-        color: #555555 !important;
+        color: #444444 !important;
         font-size: 15px !important;
         text-align: center !important;
         margin-bottom: 20px !important;
         font-family: 'Segoe UI', Arial, sans-serif !important;
     }}
 
-    /* HIGH LEGIBILITY INPUT LABELS: Forces text labels to be dark, sharp, and easy to see */
+    /* HIGH LEGIBILITY INPUT LABELS (Green/Dark) */
     label[data-testid="stWidgetLabel"] p {{
-        color: #111111 !important;
-        font-weight: 600 !important;
+        color: #16300B !important;
+        font-weight: 700 !important;
         font-size: 15px !important;
     }}
 
-    /* Premium Green Buttons */
+    /* PREMIUM GREEN BUTTONS */
     div.stButton > button {{
         background-color: #16300B !important;
         color: #FFFFFF !important;
@@ -203,13 +202,12 @@ with center_col:
             st.markdown(f'<div class="green-heading">{t["heading_landing"]}</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="card-subtext">{t["subtext_landing"]}</div>', unsafe_allow_html=True)
             
-            # Language Dropdown inside the white card
             chosen_lang = st.selectbox("Language / Lugha", ["English", "Swahili"], index=0 if lang == "English" else 1)
             if chosen_lang != st.session_state.language:
                 st.session_state.language = chosen_lang
                 st.rerun()
                 
-            st.write("") # Spacer
+            st.write("") 
 
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
@@ -230,16 +228,18 @@ with center_col:
             username = st.text_input(t["phone_label"])
             password = st.text_input(t["pass_label"], type="password")
             
-            if st.form_submit_button(t["proceed_btn"], use_container_width=True):
-                if username and password:
-                    # Clear error bar crash by switching pages right here on action submit!
-                    st.switch_page("pages/1_Transactions.py")
-                else:
-                    st.error(t["error_fields"])
-            
-            if st.form_submit_button(t["back_btn"], use_container_width=True):
-                st.session_state.auth_mode = "landing"
-                st.rerun()
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                if st.form_submit_button(t["proceed_btn"], use_container_width=True):
+                    if username and password:
+                        # SAFE ROUTING: Triggers page move instantly on click execution
+                        st.switch_page("pages/1_Transactions.py")
+                    else:
+                        st.error(t["error_fields"])
+            with btn_col2:
+                if st.form_submit_button(t["back_btn"], use_container_width=True):
+                    st.session_state.auth_mode = "landing"
+                    st.rerun()
 
     # CASE C: SIGN UP INPUT SCREEN
     elif st.session_state.auth_mode == "signup":
@@ -251,13 +251,14 @@ with center_col:
             new_phone = st.text_input(t["phone_signup_label"])
             new_pass = st.text_input(t["pass_signup_label"], type="password")
             
-            if st.form_submit_button(t["complete_btn"], use_container_width=True):
-                if new_name and new_phone and new_pass:
-                    st.success(t["success_reg"])
-                    st.switch_page("pages/1_Transactions.py")
-                else:
-                    st.error(t["error_fields"])
-                    
-            if st.form_submit_button(t["back_btn"], use_container_width=True):
-                st.session_state.auth_mode = "landing"
-                st.rerun()
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                if st.form_submit_button(t["complete_btn"], use_container_width=True):
+                    if new_name and new_phone and new_pass:
+                        st.switch_page("pages/1_Transactions.py")
+                    else:
+                        st.error(t["error_fields"])
+            with btn_col2:
+                if st.form_submit_button(t["back_btn"], use_container_width=True):
+                    st.session_state.auth_mode = "landing"
+                    st.rerun()
