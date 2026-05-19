@@ -32,9 +32,9 @@ st.markdown(f"""
         z-index: 0;
     }}
 
-    /* 2. Make Streamlit's native header transparent so the pencil/dots float on the image */
+    /* Make Streamlit's native header transparent so icons float on the image */
     [data-testid="stHeader"] {{
-        background-color: transparent !important; /* Removes the dark bar */
+        background-color: transparent !important;
         z-index: 10;
     }}
 
@@ -44,11 +44,11 @@ st.markdown(f"""
         padding-top: 3rem !important;
     }}
 
-    /* 3. Brand Title locked to the Top-LEFT Corner */
+    /* 2. Brand Title locked to the Top-LEFT Corner */
     .brand-title {{
         position: absolute;
         top: 25px;
-        left: 40px; /* Locked to the left */
+        left: 40px;
         text-align: left;
         color: #FFFFFF;
         font-family: 'Arial Black', Gadget, sans-serif;
@@ -68,31 +68,35 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* 4. Custom Login Card */
-    .custom-login-card {{
-        background-color: #FFFFFF !important; /* Pure, solid white */
-        padding: 40px 35px 85px 35px !important; 
+    /* 3. Style the native Streamlit container directly as the white card */
+    /* This completely eliminates layout fighting and shaking */
+    [data-testid="stVerticalBlockBorderWrapper"] {{
+        background-color: rgba(255, 255, 255, 0.98) !important;
+        padding: 40px !important;
         border-radius: 20px !important;
         box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
-        text-align: center !important;
+        max-width: 480px;
+        margin: auto;
         margin-top: 20vh;
-        border: 1px solid #E0E0E0;
+        border: none !important;
     }}
 
-    /* Text styling inside the card */
+    /* Custom Text elements inside the card block */
     .login-heading {{
         color: #16300B !important; 
         font-weight: 700 !important;
         font-size: 26px !important;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-        margin-bottom: 12px !important;
-        line-height: 1.3 !important;
+        text-align: center;
+        margin-bottom: 8px;
+        line-height: 1.3;
     }}
     
     .login-subtext {{
         color: #555555 !important;
         font-size: 15px !important;
-        margin-bottom: 30px !important;
+        text-align: center;
+        margin-bottom: 30px;
         font-family: 'Segoe UI', Arial, sans-serif !important;
     }}
 
@@ -127,19 +131,16 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 2. Centered Layout Column
-_, center_col, _ = st.columns([1, 1.4, 1])
+_, center_col, _ = st.columns([1, 1.3, 1])
 
 with center_col:
-    with st.container():
-        st.markdown('''
-            <div class="custom-login-card">
-                <div class="login-heading">Unlock your farm's true profit potential</div>
-                <div class="login-subtext">Log in or sign up to get started</div>
-            </div>
-        ''', unsafe_allow_html=True)
+    # By using Streamlit's native container with a border, we let the app engine 
+    # calculate layout dimensions naturally. Our CSS turns it into the beautiful white card.
+    with st.container(border=True):
+        st.markdown('<div class="login-heading">Unlock your farm\'s true profit potential</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-subtext">Log in or sign up to get started</div>', unsafe_allow_html=True)
         
-        # Pull the buttons neatly inside the white card container boundary
-        st.markdown('<div style="margin-top: -75px; padding: 0px 35px 35px 35px;">', unsafe_allow_html=True)
+        # Grid layout for buttons sits cleanly on the grid path
         btn_col1, btn_col2 = st.columns(2)
         
         with btn_col1:
@@ -149,4 +150,3 @@ with center_col:
         with btn_col2:
             if st.button("Sign Up", key="signup_btn", use_container_width=True):
                 st.toast("Opening Sign Up form...")
-        st.markdown('</div>', unsafe_allow_html=True)
