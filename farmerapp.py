@@ -9,7 +9,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- Initialize Session States kwa ajili ya Database ---
+# --- Initialize Session States (Database na Login) ---
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
 if "language" not in st.session_state:
     st.session_state.language = "Swahili"
 
@@ -19,7 +22,7 @@ if "sub_view" not in st.session_state:
 if "profit_calculated" not in st.session_state:
     st.session_state.profit_calculated = False
 
-# Hifadhi kuu ya tarehe zote (Database)
+# Database kuu ya kuhifadhi data za kila tarehe tofauti
 if "farm_database" not in st.session_state:
     st.session_state.farm_database = {}
 
@@ -42,10 +45,18 @@ def init_date_entry(target_date_str):
 # --- Background Image ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
 
-# --- Kamusi ya Lugha (Translations) ---
+# --- Kamusi ya Lugha zote (Login + Dashboard + Forms) ---
 translations = {
     "English": {
-        "subtitle": "Modern Solutions for Every Poultry Farmer",
+        "title": "MFUGAJI KWANZA",
+        "subtitle": "Modern Poultry Management System",
+        "login_header": "🔒 Account Login",
+        "username": "Username or Phone Number",
+        "password": "Password",
+        "login_btn": "Sign In Securely 🚀",
+        "error_msg": "❌ Invalid Username or Password.",
+        "success_msg": "🎉 Login Successful! Opening Dashboard...",
+        
         "welcome": "Broiler Batch Manager",
         "instruction": "Select an option below to manage development, expenditure, or broiler sales.",
         "choice_inputs": "🛒 Development & Expenditure of Chicks",
@@ -84,7 +95,15 @@ translations = {
         "day_summary": "Records Summary for:"
     },
     "Swahili": {
-        "subtitle": "Ufumbuzi wa Kisasa kwa Kila Mfugaji wa Kuku",
+        "title": "MFUGAJI KWANZA",
+        "subtitle": "Mfumo wa Kisasa wa Usimamizi wa Kuku",
+        "login_header": "🔒 Ingia Kwenye Akaunti",
+        "username": "Jina la Mtumiaji / Namba ya Simu",
+        "password": "Neno la Siri (Password)",
+        "login_btn": "Ingia Sasa 🚀",
+        "error_msg": "❌ Jina au neno la siri sio sahihi.",
+        "success_msg": "🎉 Umefanikiwa kuingia! Dashibodi inafunguka...",
+        
         "welcome": "Usimamizi wa Kuku wa Nyama (Broiler)",
         "instruction": "Chagua hatua hapa chini kusajili maendeleo, gharama, au mauzo ya broiler.",
         "choice_inputs": "🛒 Maendeleo na Gharama za Vifaranga",
@@ -127,7 +146,7 @@ translations = {
 lang = st.session_state.language
 t = translations[lang]
 
-# --- CSS Styling (PREMIUM DARK BOARDS FOR ALL VIEWS + WHITE INPUTS + HIGH STABILITY) ---
+# --- CSS Styling (UNIVERSAL DARK BOARDS + WHITE INPUTS + ZERO PAGE JUMPING) ---
 st.markdown(f"""
     <style>
     .stApp {{
@@ -141,13 +160,15 @@ st.markdown(f"""
     }}
     [data-testid="stHeader"] {{ background-color: transparent !important; z-index: 10; }}
     .main .block-container {{ z-index: 1; padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }}
+    
+    .brand-container {{ text-align: center; margin-bottom: 20px; }}
     .brand-title {{
         color: #FFFFFF; font-family: 'Arial Black', sans-serif; font-weight: 900;
         font-size: 38px; letter-spacing: 2px; text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
     }}
-    .brand-subtitle {{ font-size: 14px; font-family: Arial, sans-serif; color: #F0F0F0; display: block; margin-top: -5px; }}
+    .brand-subtitle {{ font-size: 14px; font-family: Arial, sans-serif; color: #00E676; display: block; margin-top: -5px; font-weight: 600; }}
 
-    /* MABADILIKO: Bodi zote (Kadi na Fomu) sasa ni NYEUSI za kishindo (Premium Dark Theme) */
+    /* Bodi zote sasa ni NYEUSI Thabiti kufuta uchezaji wa screen */
     .dashboard-card, [data-testid="stForm"], .stForm {{
         background-color: #1A1A1A !important; 
         border: 2px solid #2D2D2D !important;
@@ -168,14 +189,14 @@ st.markdown(f"""
     .white-card-heading {{ color: #FFFFFF !important; font-weight: 700; font-size: 22px; margin-bottom: 10px; }}
     .card-body-text-white {{ color: #DDDDDD !important; font-size: 14px; margin-bottom: 20px; line-height: 1.5; }}
 
-    /* Labels za fomu ndani ya kadi nyeusi ziwe nyeupe kabisa ili zisomeke vizuri */
+    /* Labels ziwe nyeupe kwenye bodi giza */
     label[data-testid="stWidgetLabel"] p {{ 
         color: #FFFFFF !important; 
         font-weight: 700 !important; 
         font-size: 15px !important; 
     }}
 
-    /* MABADILIKO: Sehemu za kuandikia (Inputs) sasa ni NYEUPE SAFHI na maandishi meusi */
+    /* Sehemu za kuandikia (Inputs) kuwa nyeupe tupu na maandishi meusi */
     div[data-testid="stMarkdownContainer"] p {{ color: #FFFFFF; }}
     input {{
         background-color: #FFFFFF !important;
@@ -184,7 +205,7 @@ st.markdown(f"""
         border-radius: 8px !important;
     }}
 
-    /* Electric Green Buttons zimebaki vilevile */
+    /* Electric Green Buttons */
     div.stButton > button {{
         background-color: #00E676 !important; color: #000000 !important;          
         border-radius: 12px !important; border: none !important;
@@ -197,7 +218,7 @@ st.markdown(f"""
     </style>
     """, unsafe_allow_html=True)
 
-# --- Header Section ---
+# --- Top Header & Language Selector ---
 row_top1, row_top2 = st.columns([4, 1])
 with row_top1:
     st.markdown(f'<div class="brand-title">MFUGAJI KWANZA <span class="brand-subtitle">{t["subtitle"]}</span></div>', unsafe_allow_html=True)
@@ -209,181 +230,200 @@ with row_top2:
 
 st.write("<br>", unsafe_allow_html=True)
 
-# Kukokotoa jumla ya shamba zima kwa ajili ya Dashboard
-lifetime_costs = 0.0
-lifetime_revenue = 0.0
-for date_key in st.session_state.farm_database:
-    entry = st.session_state.farm_database[date_key]
-    lifetime_costs += entry["chicks_cost"] + entry["feed_cost"] + entry["med_cost"] + entry["other_cost"]
-    lifetime_revenue += entry["sales_revenue"]
+# ==========================================
+# SEHEMU YA 1: LOGIN PAGE (Kama bado hajaingia)
+# ==========================================
+if not st.session_state.logged_in:
+    _, center_login, _ = st.columns([1, 1.8, 1])
+    with center_login:
+        with st.form(key="login_secure_form"):
+            st.markdown(f'<h3 style="color:#00E676; margin-top:0; font-weight:800; text-align:center;">{t["login_header"]}</h3>', unsafe_allow_html=True)
+            st.write("<hr style='border-color: #333; margin-bottom:20px;'>", unsafe_allow_html=True)
+            
+            user_input = st.text_input(t["username"], placeholder="admin / 0712345678")
+            pass_input = st.text_input(t["password"], type="password", placeholder="••••••••")
+            
+            if st.form_submit_button(t["login_btn"]):
+                if user_input.strip() == "admin" and pass_input == "admin123":
+                    st.session_state.logged_in = True
+                    st.success(t["success_msg"])
+                    st.rerun()
+                else:
+                    st.error(t["error_msg"])
 
 # ==========================================
-# VIEW 1: MAIN DASHBOARD VIEW
+# SEHEMU YA 2: DASHBOARD & TRANSACTIONS (Akisha-login)
 # ==========================================
-if st.session_state.sub_view == "dashboard":
-    st.markdown(f'<h2 style="text-align:center; color:white; text-shadow:2px 2px 4px #000; margin-top:0;">{t["welcome"]}</h2>', unsafe_allow_html=True)
-    st.markdown(f'<p style="text-align:center; color:#E0E0E0; font-size:16px; margin-bottom:20px;">{t["instruction"]}</p>', unsafe_allow_html=True)
-    
-    col_dash1, _, col_dash2 = st.columns([2, 0.4, 2])
-    
-    with col_dash1:
-        st.markdown(f'<div class="dashboard-card"><div class="white-card-heading">{t["choice_inputs"]}</div><div class="card-body-text-white">{t["desc_inputs"]}</div></div>', unsafe_allow_html=True)
-        if st.button(t["choice_inputs"], key="go_to_inputs"):
-            st.session_state.sub_view = "inputs"
-            st.session_state.profit_calculated = False 
-            st.rerun()
-            
-    with col_dash2:
-        st.markdown(f'<div class="dashboard-card"><div class="white-card-heading">{t["choice_withdraw"]}</div><div class="card-body-text-white">{t["desc_withdraw"]}</div></div>', unsafe_allow_html=True)
-        if st.button(t["choice_withdraw"], key="go_to_sales"):
-            st.session_state.sub_view = "withdraw"
-            st.session_state.profit_calculated = False 
-            st.rerun()
+else:
+    # Kukokotoa jumla ya shamba zima kutoka kwenye database ya tarehe zote
+    lifetime_costs = 0.0
+    lifetime_revenue = 0.0
+    for date_key in st.session_state.farm_database:
+        entry = st.session_state.farm_database[date_key]
+        lifetime_costs += entry["chicks_cost"] + entry["feed_cost"] + entry["med_cost"] + entry["other_cost"]
+        lifetime_revenue += entry["sales_revenue"]
 
-    # --- LIFETIME FINANCIAL SUMMARY CARD ---
-    st.write("<br>", unsafe_allow_html=True)
-    _, center_calc_col, _ = st.columns([0.5, 3, 0.5])
-    
-    with center_calc_col:
-        st.markdown(f"""
-        <div class="summary-card-dark">
-            <h3 style="color: #00E676; margin-top:0; font-weight:800;">{t['summary_header']}</h3>
-            <hr style="border-color: #333333;">
-            <p style="color:#FFF; font-size:16px; margin: 8px 0;"><b>{t['total_expenses']}</b> <span style="color:#FF5252; font-weight:700;">{lifetime_costs:,.2f} TSH</span></p>
-            <p style="color:#FFF; font-size:16px; margin: 15px 0 8px 0;"><b>{t['total_revenue']}</b> <span style="color:#00E676; font-weight:700;">{lifetime_revenue:,.2f} TSH</span></p>
-            <hr style="border-color: #333333;">
-        </div>
-        """, unsafe_allow_html=True)
+    # ---- VIEW 2A: DASHBOARD KUU ----
+    if st.session_state.sub_view == "dashboard":
+        st.markdown(f'<h2 style="text-align:center; color:white; text-shadow:2px 2px 4px #000; margin-top:0;">{t["welcome"]}</h2>', unsafe_allow_html=True)
+        st.markdown(f'<p style="text-align:center; color:#E0E0E0; font-size:16px; margin-bottom:20px;">{t["instruction"]}</p>', unsafe_allow_html=True)
         
-        if st.button(t["calc_profit_btn"], key="calc_profit_dashboard"):
-            st.session_state.profit_calculated = True
-            st.rerun()
+        col_dash1, _, col_dash2 = st.columns([2, 0.4, 2])
+        
+        with col_dash1:
+            st.markdown(f'<div class="dashboard-card"><div class="white-card-heading">{t["choice_inputs"]}</div><div class="card-body-text-white">{t["desc_inputs"]}</div></div>', unsafe_allow_html=True)
+            if st.button(t["choice_inputs"], key="go_to_inputs"):
+                st.session_state.sub_view = "inputs"
+                st.session_state.profit_calculated = False 
+                st.rerun()
+                
+        with col_dash2:
+            st.markdown(f'<div class="dashboard-card"><div class="white-card-heading">{t["choice_withdraw"]}</div><div class="card-body-text-white">{t["desc_withdraw"]}</div></div>', unsafe_allow_html=True)
+            if st.button(t["choice_withdraw"], key="go_to_sales"):
+                st.session_state.sub_view = "withdraw"
+                st.session_state.profit_calculated = False 
+                st.rerun()
 
-        if st.session_state.profit_calculated:
-            net_profit = lifetime_revenue - lifetime_costs
-            if net_profit > 0:
-                st.success(f"{t['profit_msg']} {net_profit:,.2f} TSH")
-            elif net_profit < 0:
-                st.error(f"{t['loss_msg']} {abs(net_profit):,.2f} TSH")
-
-    # --- 🔍 SECTION: HISTORICAL DATE SEARCH BOARD ---
-    st.write("<br><hr style='border-color: #333;'><br>", unsafe_allow_html=True)
-    _, search_col, _ = st.columns([0.5, 3, 0.5])
-    
-    with search_col:
-        st.markdown(f"""
-        <div class="dashboard-card" style="text-align: left; min-height: auto; padding: 20px !important;">
-            <h3 style="color: #00E676; margin-top:0; font-weight:800;">{t['search_header']}</h3>
-            <p style="color: #DDD; font-size:14px; margin-bottom: 5px;">{t['search_instruction']}</p>
-        </div>
-        """, unsafe_allow_html=True)
+        # --- LIFETIME FINANCIAL SUMMARY CARD ---
+        st.write("<br>", unsafe_allow_html=True)
+        _, center_calc_col, _ = st.columns([0.5, 3, 0.5])
         
-        search_date = st.date_input("", value=date.today(), key="farm_search_date_picker")
-        search_key = str(search_date)
-        
-        if search_key in st.session_state.farm_database:
-            day_data = st.session_state.farm_database[search_key]
-            day_total_cost = day_data["chicks_cost"] + day_data["feed_cost"] + day_data["med_cost"] + day_data["other_cost"]
-            day_profit = day_data["sales_revenue"] - day_total_cost
-            
+        with center_calc_col:
             st.markdown(f"""
-            <div style="background-color: #1A1A1A; border: 2px solid #2D2D2D; border-radius: 15px; padding: 25px; margin-top: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border-top: 6px solid #00E676;">
-                <h4 style="color: #00E676; margin-top:0;"><b>{t['day_summary']} {search_key}</b></h4>
-                <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 15px;">
-                    <div style="flex: 1; min-width: 200px; background:#252525; padding:15px; border-radius:10px;">
-                        <b style="color:#00E676;">🐣 Development & Expenditure:</b><br>
-                        <span style="font-size:14px; color:#EEE;">
-                        • Vifaranga: {day_data['chicks_cost']:,.2f} TSH<br>
-                        • Chakula: {day_data['feed_cost']:,.2f} TSH<br>
-                        • Dawa/Chanjo: {day_data['med_cost']:,.2f} TSH<br>
-                        • Vikorokoro: {day_data['other_cost']:,.2f} TSH<br>
-                        <b>• Vifo vya Vifaranga: <span style="color:#FF5252;">{day_data['mortality']} Kuku</span></b><br>
-                        <hr style="margin:5px 0; border-color:#444;">
-                        <b>Jumla ya Gharama: {day_total_cost:,.2f} TSH</b>
-                        </span>
-                    </div>
-                    <div style="flex: 1; min-width: 200px; background:#252525; padding:15px; border-radius:10px;">
-                        <b style="color:#00E676;">💰 Broiler Sales:</b><br>
-                        <span style="font-size:14px; color:#EEE;">
-                        • Kuku Waliouzwa: {day_data['sales_qty']} pcs<br>
-                        • Bei kwa kila mmoja: {day_data['sales_price']:,.2f} TSH<br>
-                        <hr style="margin:5px 0; border-color:#444;">
-                        <b>Jumla ya Mauzo: <span style="color:#00E676;">{day_data['sales_revenue']:,.2f} TSH</span></b>
-                    </div>
-                </div>
-                <div style="margin-top: 15px; padding: 12px; background: #00E676; border-radius: 8px; text-align: center;">
-                    <b style="color: black; font-size: 16px;">Net Profit ya Siku Hii: {day_profit:,.2f} TSH</b>
-                </div>
+            <div class="summary-card-dark">
+                <h3 style="color: #00E676; margin-top:0; font-weight:800;">{t['summary_header']}</h3>
+                <hr style="border-color: #333333;">
+                <p style="color:#FFF; font-size:16px; margin: 8px 0;"><b>{t['total_expenses']}</b> <span style="color:#FF5252; font-weight:700;">{lifetime_costs:,.2f} TSH</span></p>
+                <p style="color:#FFF; font-size:16px; margin: 15px 0 8px 0;"><b>{t['total_revenue']}</b> <span style="color:#00E676; font-weight:700;">{lifetime_revenue:,.2f} TSH</span></p>
+                <hr style="border-color: #333333;">
             </div>
             """, unsafe_allow_html=True)
-        else:
-            st.info(t["no_records"])
-
-# ==========================================
-# VIEW 2: DEVELOPMENT & EXPENDITURE VIEW (BLACK BOARD STYLE)
-# ==========================================
-elif st.session_state.sub_view == "inputs":
-    _, center_form, _ = st.columns([1, 2, 1])
-    with center_form:
-        if st.button(t["back_btn"], key="back_from_inputs"):
-            st.session_state.sub_view = "dashboard"
-            st.rerun()
             
-        with st.form(key="inputs_data_capture"):
-            st.markdown(f'<h3 style="color:#00E676; margin-top:0; font-weight:800;">{t["input_header"]}</h3>', unsafe_allow_html=True)
-            st.write("<hr style='border-color: #333;'>", unsafe_allow_html=True)
-            
-            chosen_date = st.date_input(t["label_date"], value=date.today(), key="input_date_picker")
-            date_str = str(chosen_date)
-            init_date_entry(date_str) 
-            
-            current_entry = st.session_state.farm_database[date_str]
-            
-            chicks = st.number_input(t["label_chicks"], min_value=0.0, value=current_entry["chicks_cost"], step=500.0)
-            feeds = st.number_input(t["label_feed"], min_value=0.0, value=current_entry["feed_cost"], step=1000.0)
-            meds = st.number_input(t["label_med"], min_value=0.0, value=current_entry["med_cost"], step=500.0)
-            other = st.number_input(t["label_other"], min_value=0.0, value=current_entry["other_cost"], step=500.0)
-            mortality = st.number_input(t["label_mortality"], min_value=0, value=current_entry["mortality"], step=1)
-            
-            if st.form_submit_button(t["finish_inputs_btn"]):
-                st.session_state.farm_database[date_str]["chicks_cost"] = chicks
-                st.session_state.farm_database[date_str]["feed_cost"] = feeds
-                st.session_state.farm_database[date_str]["med_cost"] = meds
-                st.session_state.farm_database[date_str]["other_cost"] = other
-                st.session_state.farm_database[date_str]["mortality"] = mortality
-                st.session_state.farm_database[date_str]["has_inputs"] = True
-                
-                st.session_state.sub_view = "dashboard"
+            if st.button(t["calc_profit_btn"], key="calc_profit_dashboard"):
+                st.session_state.profit_calculated = True
                 st.rerun()
 
-# ==========================================
-# VIEW 3: BROILER SALES VIEW (BLACK BOARD STYLE)
-# ==========================================
-elif st.session_state.sub_view == "withdraw":
-    _, center_form, _ = st.columns([1, 2, 1])
-    with center_form:
-        if st.button(t["back_btn"], key="back_from_sales"):
-            st.session_state.sub_view = "dashboard"
-            st.rerun()
+            if st.session_state.profit_calculated:
+                net_profit = lifetime_revenue - lifetime_costs
+                if net_profit > 0:
+                    st.success(f"{t['profit_msg']} {net_profit:,.2f} TSH")
+                elif net_profit < 0:
+                    st.error(f"{t['loss_msg']} {abs(net_profit):,.2f} TSH")
+
+        # --- 🔍 SECTION: HISTORICAL DATE SEARCH BOARD ---
+        st.write("<br><hr style='border-color: #333;'><br>", unsafe_allow_html=True)
+        _, search_col, _ = st.columns([0.5, 3, 0.5])
+        
+        with search_col:
+            st.markdown(f"""
+            <div class="dashboard-card" style="text-align: left; min-height: auto; padding: 20px !important;">
+                <h3 style="color: #00E676; margin-top:0; font-weight:800;">{t['search_header']}</h3>
+                <p style="color: #DDD; font-size:14px; margin-bottom: 5px;">{t['search_instruction']}</p>
+            </div>
+            """, unsafe_allow_html=True)
             
-        with st.form(key="sales_data_capture"):
-            st.markdown(f'<h3 style="color:#00E676; margin-top:0; font-weight:800;">{t["sales_header"]}</h3>', unsafe_allow_html=True)
-            st.write("<hr style='border-color: #333;'>", unsafe_allow_html=True)
+            search_date = st.date_input("", value=date.today(), key="farm_search_date_picker")
+            search_key = str(search_date)
             
-            chosen_date = st.date_input(t["label_date"], value=date.today(), key="sales_date_picker")
-            date_str = str(chosen_date)
-            init_date_entry(date_str)
-            
-            current_entry = st.session_state.farm_database[date_str]
-            
-            qty = st.number_input(t["label_qty"], min_value=0, value=current_entry["sales_qty"], step=1)
-            price = st.number_input(t["label_price"], min_value=0.0, value=6500.0 if current_entry["sales_price"] == 0.0 else current_entry["sales_price"], step=500.0)
-            
-            if st.form_submit_button(t["finish_sales_btn"]):
-                st.session_state.farm_database[date_str]["sales_qty"] = qty
-                st.session_state.farm_database[date_str]["sales_price"] = price
-                st.session_state.farm_database[date_str]["sales_revenue"] = float(qty * price)
-                st.session_state.farm_database[date_str]["has_sales"] = True
+            if search_key in st.session_state.farm_database:
+                day_data = st.session_state.farm_database[search_key]
+                day_total_cost = day_data["chicks_cost"] + day_data["feed_cost"] + day_data["med_cost"] + day_data["other_cost"]
+                day_profit = day_data["sales_revenue"] - day_total_cost
                 
+                st.markdown(f"""
+                <div style="background-color: #1A1A1A; border: 2px solid #2D2D2D; border-radius: 15px; padding: 25px; margin-top: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border-top: 6px solid #00E676;">
+                    <h4 style="color: #00E676; margin-top:0;"><b>{t['day_summary']} {search_key}</b></h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 15px;">
+                        <div style="flex: 1; min-width: 200px; background:#252525; padding:15px; border-radius:10px;">
+                            <b style="color:#00E676;">🐣 Development & Expenditure:</b><br>
+                            <span style="font-size:14px; color:#EEE;">
+                            • Vifaranga: {day_data['chicks_cost']:,.2f} TSH<br>
+                            • Chakula: {day_data['feed_cost']:,.2f} TSH<br>
+                            • Dawa/Chanjo: {day_data['med_cost']:,.2f} TSH<br>
+                            • Vikorokoro: {day_data['other_cost']:,.2f} TSH<br>
+                            <b>• Vifo vya Vifaranga: <span style="color:#FF5252;">{day_data['mortality']} Kuku</span></b><br>
+                            <hr style="margin:5px 0; border-color:#444;">
+                            <b>Jumla ya Gharama: {day_total_cost:,.2f} TSH</b>
+                            </span>
+                        </div>
+                        <div style="flex: 1; min-width: 200px; background:#252525; padding:15px; border-radius:10px;">
+                            <b style="color:#00E676;">💰 Broiler Sales:</b><br>
+                            <span style="font-size:14px; color:#EEE;">
+                            • Kuku Waliouzwa: {day_data['sales_qty']} pcs<br>
+                            • Bei kwa kila mmoja: {day_data['sales_price']:,.2f} TSH<br>
+                            <hr style="margin:5px 0; border-color:#444;">
+                            <b>Jumla ya Mauzo: <span style="color:#00E676;">{day_data['sales_revenue']:,.2f} TSH</span></b>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; padding: 12px; background: #00E676; border-radius: 8px; text-align: center;">
+                        <b style="color: black; font-size: 16px;">Net Profit ya Siku Hii: {day_profit:,.2f} TSH</b>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.info(t["no_records"])
+
+    # ---- VIEW 2B: FOMU YA GHARAMA (BLACK BOARD STYLE) ----
+    elif st.session_state.sub_view == "inputs":
+        _, center_form, _ = st.columns([1, 2, 1])
+        with center_form:
+            if st.button(t["back_btn"], key="back_from_inputs"):
                 st.session_state.sub_view = "dashboard"
                 st.rerun()
+                
+            with st.form(key="inputs_data_capture"):
+                st.markdown(f'<h3 style="color:#00E676; margin-top:0; font-weight:800;">{t["input_header"]}</h3>', unsafe_allow_html=True)
+                st.write("<hr style='border-color: #333;'>", unsafe_allow_html=True)
+                
+                chosen_date = st.date_input(t["label_date"], value=date.today(), key="input_date_picker")
+                date_str = str(chosen_date)
+                init_date_entry(date_str) 
+                
+                current_entry = st.session_state.farm_database[date_str]
+                
+                chicks = st.number_input(t["label_chicks"], min_value=0.0, value=current_entry["chicks_cost"], step=500.0)
+                feeds = st.number_input(t["label_feed"], min_value=0.0, value=current_entry["feed_cost"], step=1000.0)
+                meds = st.number_input(t["label_med"], min_value=0.0, value=current_entry["med_cost"], step=500.0)
+                other = st.number_input(t["label_other"], min_value=0.0, value=current_entry["other_cost"], step=500.0)
+                mortality = st.number_input(t["label_mortality"], min_value=0, value=current_entry["mortality"], step=1)
+                
+                if st.form_submit_button(t["finish_inputs_btn"]):
+                    st.session_state.farm_database[date_str]["chicks_cost"] = chicks
+                    st.session_state.farm_database[date_str]["feed_cost"] = feeds
+                    st.session_state.farm_database[date_str]["med_cost"] = meds
+                    st.session_state.farm_database[date_str]["other_cost"] = other
+                    st.session_state.farm_database[date_str]["mortality"] = mortality
+                    st.session_state.farm_database[date_str]["has_inputs"] = True
+                    
+                    st.session_state.sub_view = "dashboard"
+                    st.rerun()
+
+    # ---- VIEW 2C: FOMU YA MAUZO (BLACK BOARD STYLE) ----
+    elif st.session_state.sub_view == "withdraw":
+        _, center_form, _ = st.columns([1, 2, 1])
+        with center_form:
+            if st.button(t["back_btn"], key="back_from_sales"):
+                st.session_state.sub_view = "dashboard"
+                st.rerun()
+                
+            with st.form(key="sales_data_capture"):
+                st.markdown(f'<h3 style="color:#00E676; margin-top:0; font-weight:800;">{t["sales_header"]}</h3>', unsafe_allow_html=True)
+                st.write("<hr style='border-color: #333;'>", unsafe_allow_html=True)
+                
+                chosen_date = st.date_input(t["label_date"], value=date.today(), key="sales_date_picker")
+                date_str = str(chosen_date)
+                init_date_entry(date_str)
+                
+                current_entry = st.session_state.farm_database[date_str]
+                
+                qty = st.number_input(t["label_qty"], min_value=0, value=current_entry["sales_qty"], step=1)
+                price = st.number_input(t["label_price"], min_value=0.0, value=6500.0 if current_entry["sales_price"] == 0.0 else current_entry["sales_price"], step=500.0)
+                
+                if st.form_submit_button(t["finish_sales_btn"]):
+                    st.session_state.farm_database[date_str]["sales_qty"] = qty
+                    st.session_state.farm_database[date_str]["sales_price"] = price
+                    st.session_state.farm_database[date_str]["sales_revenue"] = float(qty * price)
+                    st.session_state.farm_database[date_str]["has_sales"] = True
+                    
+                    st.session_state.sub_view = "dashboard"
+                    st.rerun()
