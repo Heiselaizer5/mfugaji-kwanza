@@ -11,7 +11,7 @@ st.set_page_config(
 
 # --- Initialize Session States kwa ajili ya kuhifadhi data ---
 if "language" not in st.session_state:
-    st.session_state.language = "Swahili"  # Default ni Swahili
+    st.session_state.language = "Swahili"
 
 if "sub_view" not in st.session_state:
     st.session_state.sub_view = "dashboard"
@@ -111,9 +111,10 @@ translations = {
 lang = st.session_state.language
 t = translations[lang]
 
-# --- CSS Styling (Vibrant Green Buttons + Pure White Cards + LEGIBILITY FIX) ---
+# --- CSS Styling (PREMIUM DARK BOARDS + SOLID WHITE FORMS + STABILITY FIX) ---
 st.markdown(f"""
     <style>
+    /* Full screen setup with locked height constraints to prevent jumping */
     .stApp {{
         background-image: url("{broiler_bg_url}");
         background-size: cover;
@@ -123,10 +124,16 @@ st.markdown(f"""
     }}
     .stApp::before {{
         content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.55); z-index: 0;
+        background-color: rgba(0, 0, 0, 0.6); z-index: 0;
     }}
     [data-testid="stHeader"] {{ background-color: transparent !important; z-index: 10; }}
-    .main .block-container {{ z-index: 1; padding-top: 2rem !important; }}
+    
+    /* Optimized padding to keep components mathematically centered and stable */
+    .main .block-container {{ 
+        z-index: 1; 
+        padding-top: 1.5rem !important; 
+        padding-bottom: 1.5rem !important; 
+    }}
 
     .brand-title {{
         color: #FFFFFF; font-family: 'Arial Black', sans-serif; font-weight: 900;
@@ -134,28 +141,54 @@ st.markdown(f"""
     }}
     .brand-subtitle {{ font-size: 14px; font-family: Arial, sans-serif; color: #F0F0F0; display: block; margin-top: -5px; }}
 
-    /* LEGIBILITY FIX: White Dashboard Cards NO LONGER TRANSPARENT */
+    /* MABADILIKO: Dashboard Cards sasa ni NYEUSI TAJIRI (Premium Dark Theme) */
     .dashboard-card {{
-        background-color: #FFFFFF !important; border-radius: 16px !important;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important; padding: 28px !important;
-        text-align: center; margin-top: 15px;
+        background-color: #1A1A1A !important; 
+        border: 2px solid #2D2D2D !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.6) !important; 
+        padding: 25px !important;
+        text-align: center; 
+        margin-top: 10px;
+        min-height: 200px; /* Locked height stabilizes layout changes */
     }}
     
-    /* PURE WHITE BACKGROUND FOR FORMS: Removes transparency from development & expenditure forms */
+    /* Muhtasari wa Fedha (Financial Summary) Card - NYEUSI */
+    .summary-card-dark {{
+        background-color: #1A1A1A !important; 
+        border-radius: 20px !important; 
+        padding: 30px !important; 
+        box-shadow: 0 12px 35px rgba(0,0,0,0.7) !important; 
+        border-left: 10px solid #00E676 !important;
+        margin-top: 15px;
+    }}
+
+    .white-card-heading {{ color: #FFFFFF !important; font-weight: 700; font-size: 22px; margin-bottom: 10px; }}
+    .card-body-text-white {{ color: #DDDDDD !important; font-size: 14px; margin-bottom: 20px; line-height: 1.5; }}
+
+    /* MABADILIKO: Form Backdrop sasa ni NYEUPE SAFHI KABISA (Solid Light Mode Form) */
     [data-testid="stForm"], .stForm {{
-        background-color: #FFFFFF !important; border-radius: 20px !important;
-        padding: 40px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+        background-color: #FFFFFF !important; 
+        border-radius: 20px !important;
+        padding: 35px !important; 
+        box-shadow: 0 15px 40px rgba(0,0,0,0.6) !important;
+        margin-top: 10px;
     }}
 
-    .green-card-heading {{ color: #16300B !important; font-weight: 700; font-size: 20px; margin-bottom: 10px; }}
-    .card-body-text {{ color: #555555 !important; font-size: 14px; margin-bottom: 20px; min-height: 40px; }}
+    /* High legibility dark headers for the inside of light forms */
+    .form-dark-heading {{
+        color: #16300B !important; 
+        font-weight: 800 !important; 
+        font-size: 24px !important;
+        margin-bottom: 20px !important;
+    }}
 
-    /* HIGH LEGIBILITY INPUT LABELS (Sharp Dark Green) */
+    /* Labels Ndani ya Fomu ziwe za Kijani ya Giza ili zisomeke vizuri */
     label[data-testid="stWidgetLabel"] p {{
-        color: #16300B !important; font-weight: 700 !important; font-size: 16px !important;
+        color: #16300B !important; font-weight: 700 !important; font-size: 15px !important;
     }}
 
-    /* VIBRANT ELECTRIC GREEN BUTTONS (Sharp Black Text) */
+    /* VIBRANT ELECTRIC GREEN BUTTONS (Sharp Black Text - Hazijabadilika) */
     div.stButton > button {{
         background-color: #00E676 !important; color: #000000 !important;          
         border-radius: 12px !important; border: none !important;
@@ -183,29 +216,29 @@ with row_top2:
 st.write("<br>", unsafe_allow_html=True)
 
 # ==========================================
-# VIEW 1: MAIN DASHBOARD VIEW
+# VIEW 1: MAIN DASHBOARD VIEW (PREMIUM BLACK BOARDS)
 # ==========================================
 if st.session_state.sub_view == "dashboard":
-    st.markdown(f'<h2 style="text-align:center; color:white; text-shadow:2px 2px 4px #000;">{t["welcome"]}</h2>', unsafe_allow_html=True)
-    st.markdown(f'<p style="text-align:center; color:#E0E0E0; font-size:16px;">{t["instruction"]}</p>', unsafe_allow_html=True)
+    st.markdown(f'<h2 style="text-align:center; color:white; text-shadow:2px 2px 4px #000; margin-top:0;">{t["welcome"]}</h2>', unsafe_allow_html=True)
+    st.markdown(f'<p style="text-align:center; color:#E0E0E0; font-size:16px; margin-bottom:20px;">{t["instruction"]}</p>', unsafe_allow_html=True)
     
-    col_dash1, _, col_dash2 = st.columns([2, 0.5, 2])
+    col_dash1, _, col_dash2 = st.columns([2, 0.4, 2])
     
     with col_dash1:
-        st.markdown(f'<div class="dashboard-card"><div class="green-card-heading">{t["choice_inputs"]}</div><div class="card-body-text">{t["desc_inputs"]}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="dashboard-card"><div class="white-card-heading">{t["choice_inputs"]}</div><div class="card-body-text-white">{t["desc_inputs"]}</div></div>', unsafe_allow_html=True)
         if st.button(t["choice_inputs"], key="go_to_inputs"):
             st.session_state.sub_view = "inputs"
-            st.session_state.profit_calculated = False # Reset calculation flag
+            st.session_state.profit_calculated = False 
             st.rerun()
             
     with col_dash2:
-        st.markdown(f'<div class="dashboard-card"><div class="green-card-heading">{t["choice_withdraw"]}</div><div class="card-body-text">{t["desc_withdraw"]}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="dashboard-card"><div class="white-card-heading">{t["choice_withdraw"]}</div><div class="card-body-text-white">{t["desc_withdraw"]}</div></div>', unsafe_allow_html=True)
         if st.button(t["choice_withdraw"], key="go_to_sales"):
             st.session_state.sub_view = "withdraw"
-            st.session_state.profit_calculated = False # Reset calculation flag
+            st.session_state.profit_calculated = False 
             st.rerun()
 
-    # --- LIVE NET PROFIT FINANCIAL CALCULATOR CARD ---
+    # --- LIVE NET PROFIT FINANCIAL CALCULATOR CARD (BLACK BOARD) ---
     st.write("<br>", unsafe_allow_html=True)
     _, center_calc_col, _ = st.columns([0.5, 3, 0.5])
     
@@ -217,27 +250,25 @@ if st.session_state.sub_view == "dashboard":
         total_rev = st.session_state.sales_revenue
         
         st.markdown(f"""
-        <div style="background-color: #FFFFFF; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-left: 10px solid #16300B;">
-            <h3 style="color: #16300B; margin-top:0; font-weight:800;">{t['summary_header']}</h3>
-            <hr style="border-color: #EEEEEE;">
-            <p style="color:#333; font-size:16px; margin: 8px 0;">
-                <b>{t['total_expenses']}</b> <span style="color:#C62828; font-weight:700;">{total_costs:,.2f} TSH</span> 
-                <br><small style="color:#666;"><i>{t['record_date']} {st.session_state.inputs_date}</i></small>
+        <div class="summary-card-dark">
+            <h3 style="color: #00E676; margin-top:0; font-weight:800;">{t['summary_header']}</h3>
+            <hr style="border-color: #333333;">
+            <p style="color:#FFF; font-size:16px; margin: 8px 0;">
+                <b>{t['total_expenses']}</b> <span style="color:#FF5252; font-weight:700;">{total_costs:,.2f} TSH</span> 
+                <br><small style="color:#BBB;"><i>{t['record_date']} {st.session_state.inputs_date}</i></small>
             </p>
-            <p style="color:#333; font-size:16px; margin: 15px 0 8px 0;">
-                <b>{t['total_revenue']}</b> <span style="color:#2E7D32; font-weight:700;">{total_rev:,.2f} TSH</span>
-                <br><small style="color:#666;"><i>{t['record_date']} {st.session_state.sales_date}</i></small>
+            <p style="color:#FFF; font-size:16px; margin: 15px 0 8px 0;">
+                <b>{t['total_revenue']}</b> <span style="color:#00E676; font-weight:700;">{total_rev:,.2f} TSH</span>
+                <br><small style="color:#BBB;"><i>{t['record_date']} {st.session_state.sales_date}</i></small>
             </p>
-            <hr style="border-color: #EEEEEE;">
+            <hr style="border-color: #333333;">
         </div>
         """, unsafe_allow_html=True)
         
-        # NET PROFIT BUTTON: Trigger calculation explicitly
         if st.button(t["calc_profit_btn"], key="calc_profit_dashboard"):
             st.session_state.profit_calculated = True
             st.rerun()
 
-        # Display profit or loss status only after button is clicked
         if st.session_state.profit_calculated:
             net_profit = total_rev - total_costs
             if net_profit > 0:
@@ -246,7 +277,7 @@ if st.session_state.sub_view == "dashboard":
                 st.error(f"{t['loss_msg']} {abs(net_profit):,.2f} TSH")
 
 # ==========================================
-# VIEW 2: DEVELOPMENT & EXPENDITURE VIEW
+# VIEW 2: DEVELOPMENT & EXPENDITURE VIEW (SOLID WHITE FORM)
 # ==========================================
 elif st.session_state.sub_view == "inputs":
     _, center_form, _ = st.columns([1, 2, 1])
@@ -255,9 +286,8 @@ elif st.session_state.sub_view == "inputs":
             st.session_state.sub_view = "dashboard"
             st.rerun()
             
-        # PURE WHITE BACKDROP FORM (NOT TRANSPARENT)
         with st.form(key="inputs_data_capture"):
-            st.markdown(f'<h3 style="color:#16300B; margin-bottom:15px; font-weight:800;">{t["input_header"]}</h3>', unsafe_allow_html=True)
+            st.markdown(f'<div class="form-dark-heading">{t["input_header"]}</div>', unsafe_allow_html=True)
             
             chicks = st.number_input(t["label_chicks"], min_value=0.0, value=st.session_state.input_chicks_cost, step=500.0)
             feeds = st.number_input(t["label_feed"], min_value=0.0, value=st.session_state.input_feed_cost, step=1000.0)
@@ -270,7 +300,6 @@ elif st.session_state.sub_view == "inputs":
                 st.session_state.input_med_cost = meds
                 st.session_state.input_other_cost = other
                 
-                # ATO DATING: Kuchukua Tarehe na Muda wa sasa kwa Gharama
                 now = datetime.now()
                 st.session_state.inputs_date = now.strftime("%Y-%m-%d %H:%M:%S")
                 
@@ -278,7 +307,7 @@ elif st.session_state.sub_view == "inputs":
                 st.rerun()
 
 # ==========================================
-# VIEW 3: BROILER SALES VIEW
+# VIEW 3: BROILER SALES VIEW (SOLID WHITE FORM)
 # ==========================================
 elif st.session_state.sub_view == "withdraw":
     _, center_form, _ = st.columns([1, 2, 1])
@@ -287,9 +316,8 @@ elif st.session_state.sub_view == "withdraw":
             st.session_state.sub_view = "dashboard"
             st.rerun()
             
-        # PURE WHITE BACKDROP FORM (NOT TRANSPARENT)
         with st.form(key="sales_data_capture"):
-            st.markdown(f'<h3 style="color:#16300B; margin-bottom:15px; font-weight:800;">{t["sales_header"]}</h3>', unsafe_allow_html=True)
+            st.markdown(f'<div class="form-dark-heading">{t["sales_header"]}</div>', unsafe_allow_html=True)
             
             qty = st.number_input(t["label_qty"], min_value=0, value=st.session_state.sales_qty, step=1)
             price = st.number_input(t["label_price"], min_value=0.0, value=6500.0 if st.session_state.sales_price == 0.0 else st.session_state.sales_price, step=500.0)
@@ -299,7 +327,6 @@ elif st.session_state.sub_view == "withdraw":
                 st.session_state.sales_price = price
                 st.session_state.sales_revenue = float(qty * price)
                 
-                # ATO DATING: Kuchukua Tarehe na Muda wa sasa kwa Mauzo (Same function as inputs)
                 now = datetime.now()
                 st.session_state.sales_date = now.strftime("%Y-%m-%d %H:%M:%S")
                 
