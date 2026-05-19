@@ -8,12 +8,21 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- Initialize session states to track language and page mode ---
+# --- Initialize session states to track language and page routing safely ---
 if "language" not in st.session_state:
     st.session_state.language = "English"
 
 if "auth_mode" not in st.session_state:
     st.session_state.auth_mode = "landing"
+
+if "redirect_to_transactions" not in st.session_state:
+    st.session_state.redirect_to_transactions = False
+
+# --- SAFE MULTIPAGE ROUTING FLAG CHECK ---
+# Checking this outside the form prevents the red StreamlitAPIException crash!
+if st.session_state.redirect_to_transactions:
+    st.session_state.redirect_to_transactions = False
+    st.switch_page("pages/1_Transactions.py")
 
 # --- High-Quality White Broiler Background Image Link ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
@@ -64,7 +73,7 @@ translations = {
     }
 }
 
-# Shortcut to access current translations easily
+# Access translations safely
 lang = st.session_state.language
 t = translations[lang]
 
@@ -136,9 +145,9 @@ st.markdown(f"""
         margin-top: 15vh !important;
     }}
 
-    /* Premium Black Typography Elements */
+    /* Clean Card Typography Elements */
     .black-heading {{
-        color: #000000 !important;
+        color: #111111 !important;
         font-weight: 800 !important;
         font-size: 26px !important;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
@@ -148,16 +157,23 @@ st.markdown(f"""
     }}
     
     .black-subtext {{
-        color: #444444 !important;
+        color: #555555 !important;
         font-size: 15px !important;
         text-align: center !important;
-        margin-bottom: 15px !important;
+        margin-bottom: 20px !important;
         font-family: 'Segoe UI', Arial, sans-serif !important;
+    }}
+
+    /* CRITICAL COLOR FIX FOR LABELS: Forces input labels to be dark charcoal gray and visible */
+    label[data-testid="stWidgetLabel"] p {{
+        color: #222222 !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
     }}
 
     /* Sleek Solid Black Buttons */
     div.stButton > button {{
-        background-color: #000000 !important;
+        background-color: #111111 !important;
         color: #FFFFFF !important;
         border-radius: 8px !important;
         border: none !important;
@@ -169,7 +185,7 @@ st.markdown(f"""
     }}
     
     div.stButton > button:hover {{
-        background-color: #222222 !important;
+        background-color: #333333 !important;
         transform: scale(1.02);
     }}
     </style>
@@ -196,8 +212,8 @@ with center_col:
             st.markdown(f'<div class="black-heading">{t["heading_landing"]}</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="black-subtext">{t["subtext_landing"]}</div>', unsafe_allow_html=True)
             
-            # Pure Language Toggle Dropdown inside the card
-            chosen_lang = st.selectbox("Language / Lugha", ["English", "Swahili"], index=0 if lang == "English" else 1, label_visibility="collapsed")
+            # Language Toggle Selector Dropdown inside the card
+            chosen_lang = st.selectbox("Language / Lugha", ["English", "Swahili"], index=0 if lang == "English" else 1)
             if chosen_lang != st.session_state.language:
                 st.session_state.language = chosen_lang
                 st.rerun()
@@ -206,10 +222,12 @@ with center_col:
 
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
-                if st.form_submit_button("Log In", use_container_width=True):
-                    st.switch_page("pages/1_Transactions.py") # <--- This line routes the user
+                # FIXED: Pulled text cleanly from our translation lookup arrays!
+                if st.form_submit_button(t["login_btn"], use_container_width=True):
+                    st.session_state.auth_mode = "login"
                     st.rerun()
             with btn_col2:
+                # FIXED: Pulled text cleanly from our translation lookup arrays!
                 if st.form_submit_button(t["signup_btn"], use_container_width=True):
                     st.session_state.auth_mode = "signup"
                     st.rerun()
@@ -220,12 +238,15 @@ with center_col:
             st.markdown(f'<div class="black-heading">{t["heading_login"]}</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="black-subtext">{t["subtext_login"]}</div>', unsafe_allow_html=True)
             
+            # FIXED: Input labels are now completely readable against the card canvas color
             username = st.text_input(t["phone_label"])
             password = st.text_input(t["pass_label"], type="password")
             
             if st.form_submit_button(t["proceed_btn"], use_container_width=True):
                 if username and password:
-                    st.switch_page("pages/1_Transactions.py")
+                    # FIXED: Instead of calling st.switch_page inside the form block, we set our clean flag trigger
+                    st.session_state.redirect_to_transactions = True
+                    st.rerun()
                 else:
                     st.error(t["error_fields"])
             
@@ -239,6 +260,7 @@ with center_col:
             st.markdown(f'<div class="black-heading">{t["heading_signup"]}</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="black-subtext">{t["subtext_signup"]}</div>', unsafe_allow_html=True)
             
+            # FIXED: Input labels are now completely readable against the card canvas color
             new_name = st.text_input(t["name_label"])
             new_phone = st.text_input(t["phone_signup_label"])
             new_pass = st.text_input(t["pass_signup_label"], type="password")
@@ -246,7 +268,8 @@ with center_col:
             if st.form_submit_button(t["complete_btn"], use_container_width=True):
                 if new_name and new_phone and new_pass:
                     st.success(t["success_reg"])
-                    st.switch_page("pages/1_Transactions.py")
+                    st.session_state.redirect_to_transactions = True
+                    st.rerun()
                 else:
                     st.error(t["error_fields"])
                     
