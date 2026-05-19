@@ -1,84 +1,114 @@
 import streamlit as st
+from datetime import datetime
 
-# --- Must be the first Streamlit command ---
+# --- Page Configuration ---
 st.set_page_config(
-    page_title="Mfugeji Kwanza - Login",
+    page_title="Mfugaji Kwanza - Broiler Manager",
     page_icon="🐔",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- Initialize session states safely ---
+# --- Initialize Session States kwa ajili ya kuhifadhi data ---
 if "language" not in st.session_state:
-    st.session_state.language = "English"
+    st.session_state.language = "Swahili"  # Default ni Swahili
 
-if "auth_mode" not in st.session_state:
-    st.session_state.auth_mode = "landing"
+if "sub_view" not in st.session_state:
+    st.session_state.sub_view = "dashboard"
 
-if "run_redirect" not in st.session_state:
-    st.session_state.run_redirect = False
+# Kuhifadhi kumbukumbu za mahesabu
+if "input_chicks_cost" not in st.session_state: st.session_state.input_chicks_cost = 0.0
+if "input_feed_cost" not in st.session_state: st.session_state.input_feed_cost = 0.0
+if "input_med_cost" not in st.session_state: st.session_state.input_med_cost = 0.0
+if "input_other_cost" not in st.session_state: st.session_state.input_other_cost = 0.0
 
-# --- Safe Redirect Logic ---
-if st.session_state.run_redirect:
-    st.session_state.run_redirect = False  
-    st.switch_page("pages/1_Transactions.py")
+if "sales_qty" not in st.session_state: st.session_state.sales_qty = 0
+if "sales_price" not in st.session_state: st.session_state.sales_price = 0.0
+if "sales_revenue" not in st.session_state: st.session_state.sales_revenue = 0.0
 
-# --- High-Quality White Broiler Background Image Link ---
+# Kuhifadhi tarehe za matukio
+if "inputs_date" not in st.session_state: st.session_state.inputs_date = "-"
+if "sales_date" not in st.session_state: st.session_state.sales_date = "-"
+
+# --- Background Image ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
 
-# --- Translation Dictionary ---
+# --- Kamusi ya Lugha (Translations) ---
 translations = {
     "English": {
         "subtitle": "Modern Solutions for Every Poultry Farmer",
-        "heading_landing": "Unlock your farm's true profit potential",
-        "subtext_landing": "Log in or sign up to get started",
-        "login_btn": "Log In",
-        "signup_btn": "Sign Up",
-        "heading_login": "Welcome Back",
-        "subtext_login": "Enter details to access transactions",
-        "phone_label": "Phone Number or Email",
-        "pass_label": "Password",
-        "proceed_btn": "Proceed to Account",
-        "back_btn": "← Back",
-        "heading_signup": "Create Account",
-        "subtext_signup": "Register your poultry farm profile",
-        "name_label": "Full Farmer Name",
-        "phone_signup_label": "Phone Number (For Payments)",
-        "pass_signup_label": "Create Security Password",
-        "complete_btn": "Complete Registration",
-        "error_fields": "All fields are required.",
-        "success_reg": "Account created successfully!"
+        "welcome": "Broiler Batch Manager",
+        "instruction": "Select an option below to manage development, expenditure, or broiler sales.",
+        "choice_inputs": "🛒 Development & Expenditure of Chicks",
+        "choice_withdraw": "💰 Broiler Sales",
+        "desc_inputs": "Record expenses for chicks, feeds, medications, and other general farm production costs.",
+        "desc_withdraw": "Record number of mature chickens sold, selling price, and calculate harvest return.",
+        "back_btn": "← Back to Dashboard",
+        
+        # Inputs Form
+        "input_header": "Development & Expenditure of Chicks",
+        "label_chicks": "Total Cost of Vifaranga (TSH)",
+        "label_feed": "Total Cost of Chakula/Feeds (TSH)",
+        "label_med": "Total Cost of Meds & Vaccines (TSH)",
+        "label_other": "Total Cost of Other Expenses (TSH)",
+        "finish_inputs_btn": "🏁 Finish & Calculate Expenses",
+        
+        # Sales Form
+        "sales_header": "Broiler Sales (Harvest Details)",
+        "label_qty": "Number of Chickens Sold",
+        "label_price": "Price per Chicken (TSH)",
+        "finish_sales_btn": "🏁 Finish & Calculate Sales",
+        
+        # Financial Summary Card
+        "summary_header": "📊 Financial Performance Summary",
+        "total_expenses": "Total Expenses (Expenditures):",
+        "total_revenue": "Total Sales Revenue:",
+        "net_profit": "Net Profit:",
+        "record_date": "Recorded on:",
+        "profit_msg": "🎉 Congratulations! Your batch made a PROFIT of",
+        "loss_msg": "⚠️ Attention! Your batch made a LOSS of"
     },
     "Swahili": {
         "subtitle": "Ufumbuzi wa Kisasa kwa Kila Mfugaji wa Kuku",
-        "heading_landing": "Fungua uwezo halisi wa faida wa shamba lako",
-        "subtext_landing": "Ingia au jisajili ili kuanza",
-        "login_btn": "Ingia",
-        "signup_btn": "Jisajili",
-        "heading_login": "Karibu Tena",
-        "subtext_login": "Ingiza maelezo ili kupata miamala",
-        "phone_label": "Namba ya Simu au Barua Pepe",
-        "pass_label": "Nenosiri",
-        "proceed_btn": "Endelea kwenye Akaunti",
-        "back_btn": "← Nyuma",
-        "heading_signup": "Fungua Akaunti",
-        "subtext_signup": "Sajili wasifu wa shamba lako la kuku",
-        "name_label": "Jina Kamili la Mfugaji",
-        "phone_signup_label": "Namba ya Simu (Kwa Ajili ya Malipo)",
-        "pass_signup_label": "Weka Nenosiri la Usalama",
-        "complete_btn": "Kamilisha Usajili",
-        "error_fields": "Sehemu zote zinahitajika.",
-        "success_reg": "Akaunti imefunguliwa kwa mafanikio!"
+        "welcome": "Usimamizi wa Kuku wa Nyama (Broiler)",
+        "instruction": "Chagua hatua hapa chini kusimajili maendeleo, gharama, au mauzo ya broiler.",
+        "choice_inputs": "🛒 Maendeleo na Gharama za Vifaranga",
+        "choice_withdraw": "💰 Mauzo ya Kuku (Broiler Sales)",
+        "desc_inputs": "Sajili gharama za vifaranga, chakula, madawa, na gharama nyinginezo za uzalishaji.",
+        "desc_withdraw": "Sajili idadi ya kuku waliokomaa waliouzwa, bei ya kuuzia, na kukokotoa mapato ya jumla.",
+        "back_btn": "← Rudi Kwenye Dashibodi",
+        
+        # Inputs Form
+        "input_header": "Maendeleo na Gharama za Vifaranga (Development & Expenditure)",
+        "label_chicks": "Gharama Kamili ya Vifaranga (TSH)",
+        "label_feed": "Gharama Kamili ya Chakula (TSH)",
+        "label_med": "Gharama Kamili ya Chanjo na Dawa (TSH)",
+        "label_other": "Gharama za Vikorokoro Nyinginezo (TSH)",
+        "finish_inputs_btn": "🏁 Maliza na Ukokotoe Gharama (Finish)",
+        
+        # Sales Form
+        "sales_header": "Mauzo ya Kuku (Broiler Sales)",
+        "label_qty": "Idadi ya Kuku Waliouzwa",
+        "label_price": "Bei kwa Kila Kuku mmoja (TSH)",
+        "finish_sales_btn": "🏁 Maliza na Ukokotoe Mauzo (Finish)",
+        
+        # Financial Summary Card
+        "summary_header": "📊 Muhtasari wa Mapato na Faida",
+        "total_expenses": "Jumla ya Matumizi (Expenditure):",
+        "total_revenue": "Jumla ya Mapato ya Mauzo:",
+        "net_profit": "Faida Net (Net Profit):",
+        "record_date": "Tarehe ya kurekodi:",
+        "profit_msg": "🎉 Hongera! Batch hii imeingiza FAIDA ya",
+        "loss_msg": "⚠️ Angalizo! Batch hii imeingiza HASARA ya"
     }
 }
 
 lang = st.session_state.language
 t = translations[lang]
 
-# --- Frontend CSS Layout Engine ---
+# --- CSS Styling (Vibrant Green Buttons + Pure White Cards) ---
 st.markdown(f"""
     <style>
-    /* Full-screen layout background */
     .stApp {{
         background-image: url("{broiler_bg_url}");
         background-size: cover;
@@ -86,192 +116,173 @@ st.markdown(f"""
         background-repeat: no-repeat;
         background-attachment: fixed;
     }}
-
-    /* Dark overlay over background image */
     .stApp::before {{
-        content: "";
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 0;
+        content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.55); z-index: 0;
     }}
+    [data-testid="stHeader"] {{ background-color: transparent !important; z-index: 10; }}
+    .main .block-container {{ z-index: 1; padding-top: 2rem !important; }}
 
-    /* Transparent top app bar */
-    [data-testid="stHeader"] {{
-        background-color: transparent !important;
-        z-index: 10;
-    }}
-
-    .main .block-container {{
-        z-index: 1;
-        padding-top: 3rem !important;
-    }}
-
-    /* Top-Left Title "MFUGAJI KWANZA" */
     .brand-title {{
-        position: absolute;
-        top: 25px;
-        left: 40px;
-        text-align: left;
-        color: #FFFFFF;
-        font-family: 'Arial Black', Gadget, sans-serif;
-        font-weight: 900;
-        font-size: 38px;
-        letter-spacing: 2px;
-        text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
-        z-index: 100;
+        color: #FFFFFF; font-family: 'Arial Black', sans-serif; font-weight: 900;
+        font-size: 38px; letter-spacing: 2px; text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
     }}
-    
-    .brand-subtitle {{
-        font-size: 14px;
-        font-family: Arial, sans-serif;
-        font-weight: normal;
-        color: #F0F0F0;
-        display: block;
-        margin-top: -5px;
-    }}
+    .brand-subtitle {{ font-size: 14px; font-family: Arial, sans-serif; color: #F0F0F0; display: block; margin-top: -5px; }}
 
-    /* SOLID PURE WHITE CARD CONTAINER BOX */
-    .stForm, div[data-testid="stVerticalBlockBorderWrapper"] {{
-        background-color: #FFFFFF !important;
-        border: none !important;
-        border-radius: 20px !important;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
-        padding: 40px !important;
-        max-width: 480px !important;
-        margin: auto !important;
-        margin-top: 15vh !important;
+    /* White Dashboard Cards */
+    .dashboard-card {{
+        background-color: #FFFFFF !important; border-radius: 16px !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important; padding: 28px !important;
+        text-align: center; margin-top: 15px;
     }}
+    .green-card-heading {{ color: #16300B !important; font-weight: 700; font-size: 20px; margin-bottom: 10px; }}
+    .card-body-text {{ color: #555555 !important; font-size: 14px; margin-bottom: 20px; min-height: 40px; }}
 
-    /* PREMIUM DARK GREEN HEADINGS */
-    .green-heading {{
-        color: #16300B !important;
-        font-weight: 800 !important;
-        font-size: 26px !important;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-        text-align: center !important;
-        margin-bottom: 8px !important;
-        line-height: 1.3 !important;
-    }}
-    
-    .card-subtext {{
-        color: #555555 !important;
-        font-size: 15px !important;
-        text-align: center !important;
-        margin-bottom: 20px !important;
-        font-family: 'Segoe UI', Arial, sans-serif !important;
-    }}
-
-    /* HIGH LEGIBILITY INPUT LABELS */
+    /* HIGH LEGIBILITY INPUT LABELS (Sharp Dark Green) */
     label[data-testid="stWidgetLabel"] p {{
-        color: #16300B !important;
-        font-weight: 700 !important;
-        font-size: 15px !important;
+        color: #16300B !important; font-weight: 700 !important; font-size: 16px !important;
     }}
 
-    /* CRITICAL FIX: Explicitly target both general buttons AND form submit buttons 
-       to force the bright electric green layout override.
-    */
-    div.stButton > button, div.stFormSubmitButton > button {{
-        background-color: #00E676 !important; /* Vivid Electric Green */
-        color: #000000 !important;          /* Sharp Black Text */
-        border-radius: 12px !important;       
-        border: none !important;
-        padding: 12px 20px !important;
-        font-size: 16px !important;
-        font-weight: 700 !important;
-        letter-spacing: 0.5px;
+    /* VIBRANT ELECTRIC GREEN BUTTONS (Sharp Black Text) */
+    div.stButton > button {{
+        background-color: #00E676 !important; color: #000000 !important;          
+        border-radius: 12px !important; border: none !important;
+        padding: 12px 24px !important; font-size: 16px !important; font-weight: 700 !important;
         box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3) !important;
-        transition: all 0.2s ease-in-out;
+        transition: all 0.2s ease-in-out; width: 100%;
     }}
-    
-    div.stButton > button:hover, div.stFormSubmitButton > button:hover {{
-        background-color: #00C853 !important; 
-        box-shadow: 0 6px 16px rgba(0, 230, 118, 0.5) !important;
+    div.stButton > button:hover {{
+        background-color: #00C853 !important; box-shadow: 0 6px 16px rgba(0, 230, 118, 0.5) !important;
         transform: scale(1.02);
     }}
     </style>
     """, unsafe_allow_html=True)
 
-# --- Render Elements ---
+# --- Header Section ---
+row_top1, row_top2 = st.columns([4, 1])
+with row_top1:
+    st.markdown(f'<div class="brand-title">MFUGAJI KWANZA <span class="brand-subtitle">{t["subtitle"]}</span></div>', unsafe_allow_html=True)
+with row_top2:
+    chosen_lang = st.selectbox("", ["Swahili", "English"], index=0 if lang == "Swahili" else 1, key="app_lang_select")
+    if chosen_lang != st.session_state.language:
+        st.session_state.language = chosen_lang
+        st.rerun()
 
-# 1. Brand Logo on Top LEFT
-st.markdown(f"""
-    <div class="brand-title">
-        MFUGAJI KWANZA
-        <span class="brand-subtitle">{t['subtitle']}</span>
-    </div>
-""", unsafe_allow_html=True)
+st.write("<br>", unsafe_allow_html=True)
 
-# 2. Central Layout Core Router
-_, center_col, _ = st.columns([1, 1.3, 1])
-
-with center_col:
+# ==========================================
+# VIEW 1: MAIN DASHBOARD VIEW
+# ==========================================
+if st.session_state.sub_view == "dashboard":
+    st.markdown(f'<h2 style="text-align:center; color:white; text-shadow:2px 2px 4px #000;">{t["welcome"]}</h2>', unsafe_allow_html=True)
+    st.markdown(f'<p style="text-align:center; color:#E0E0E0; font-size:16px;">{t["instruction"]}</p>', unsafe_allow_html=True)
     
-    # CASE A: LANDING SCREEN
-    if st.session_state.auth_mode == "landing":
-        with st.form(key="landing_form"):
-            st.markdown(f'<div class="green-heading">{t["heading_landing"]}</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="card-subtext">{t["subtext_landing"]}</div>', unsafe_allow_html=True)
+    col_dash1, _, col_dash2 = st.columns([2, 0.5, 2])
+    
+    with col_dash1:
+        st.markdown(f'<div class="dashboard-card"><div class="green-card-heading">{t["choice_inputs"]}</div><div class="card-body-text">{t["desc_inputs"]}</div></div>', unsafe_allow_html=True)
+        if st.button(t["choice_inputs"], key="go_to_inputs"):
+            st.session_state.sub_view = "inputs"
+            st.rerun()
             
-            chosen_lang = st.selectbox("Language / Lugha", ["English", "Swahili"], index=0 if lang == "English" else 1)
-            if chosen_lang != st.session_state.language:
-                st.session_state.language = chosen_lang
-                st.rerun()
+    with col_dash2:
+        st.markdown(f'<div class="dashboard-card"><div class="green-card-heading">{t["choice_withdraw"]}</div><div class="card-body-text">{t["desc_withdraw"]}</div></div>', unsafe_allow_html=True)
+        if st.button(t["choice_withdraw"], key="go_to_sales"):
+            st.session_state.sub_view = "withdraw"
+            st.rerun()
+
+    # --- LIVE NET PROFIT FINANCIAL CALCULATOR CARD ---
+    st.write("<br>", unsafe_allow_html=True)
+    _, center_calc_col, _ = st.columns([0.5, 3, 0.5])
+    
+    with center_calc_col:
+        total_costs = (st.session_state.input_chicks_cost + 
+                       st.session_state.input_feed_cost + 
+                       st.session_state.input_med_cost + 
+                       st.session_state.input_other_cost)
+        total_rev = st.session_state.sales_revenue
+        net_profit = total_rev - total_costs
+        
+        st.markdown(f"""
+        <div style="background-color: #FFFFFF; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-left: 10px solid #16300B;">
+            <h3 style="color: #16300B; margin-top:0; font-weight:800;">{t['summary_header']}</h3>
+            <hr style="border-color: #EEEEEE;">
+            <p style="color:#333; font-size:16px; margin: 8px 0;">
+                <b>{t['total_expenses']}</b> <span style="color:#C62828; font-weight:700;">{total_costs:,.2f} TSH</span> 
+                <br><small style="color:#666;"><i>{t['record_date']} {st.session_state.inputs_date}</i></small>
+            </p>
+            <p style="color:#333; font-size:16px; margin: 15px 0 8px 0;">
+                <b>{t['total_revenue']}</b> <span style="color:#2E7D32; font-weight:700;">{total_rev:,.2f} TSH</span>
+                <br><small style="color:#666;"><i>{t['record_date']} {st.session_state.sales_date}</i></small>
+            </p>
+            <hr style="border-color: #EEEEEE;">
+            <h4 style="color:#16300B; font-size:20px; margin: 15px 0 5px 0;"><b>{t['net_profit']}</b></h4>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if total_costs > 0 or total_rev > 0:
+            if net_profit > 0:
+                st.success(f"{t['profit_msg']} {net_profit:,.2f} TSH")
+            elif net_profit < 0:
+                st.error(f"{t['loss_msg']} {abs(net_profit):,.2f} TSH")
+
+# ==========================================
+# VIEW 2: DEVELOPMENT & EXPENDITURE VIEW
+# ==========================================
+elif st.session_state.sub_view == "inputs":
+    _, center_form, _ = st.columns([1, 2, 1])
+    with center_form:
+        if st.button(t["back_btn"], key="back_from_inputs"):
+            st.session_state.sub_view = "dashboard"
+            st.rerun()
+            
+        with st.form(key="inputs_data_capture"):
+            st.markdown(f'<h3 style="color:#16300B; margin-bottom:15px; font-weight:800;">{t["input_header"]}</h3>', unsafe_allow_html=True)
+            
+            chicks = st.number_input(t["label_chicks"], min_value=0.0, value=st.session_state.input_chicks_cost, step=500.0)
+            feeds = st.number_input(t["label_feed"], min_value=0.0, value=st.session_state.input_feed_cost, step=1000.0)
+            meds = st.number_input(t["label_med"], min_value=0.0, value=st.session_state.input_med_cost, step=500.0)
+            other = st.number_input(t["label_other"], min_value=0.0, value=st.session_state.input_other_cost, step=500.0)
+            
+            # FINISH BUTTON: Inapiga hesabu ya gharama zote na kuhifadhi muda
+            if st.form_submit_button(t["finish_inputs_btn"]):
+                st.session_state.input_chicks_cost = chicks
+                st.session_state.input_feed_cost = feeds
+                st.session_state.input_med_cost = meds
+                st.session_state.input_other_cost = other
                 
-            st.write("") 
+                # Kuchukua Tarehe na Muda wa sasa
+                now = datetime.now()
+                st.session_state.inputs_date = now.strftime("%Y-%m-%d %H:%M:%S")
+                
+                st.session_state.sub_view = "dashboard"
+                st.rerun()
 
-            btn_col1, btn_col2 = st.columns(2)
-            with btn_col1:
-                if st.form_submit_button(t["login_btn"], use_container_width=True):
-                    st.session_state.auth_mode = "login"
-                    st.rerun()
-            with btn_col2:
-                if st.form_submit_button(t["signup_btn"], use_container_width=True):
-                    st.session_state.auth_mode = "signup"
-                    st.rerun()
-
-    # CASE B: LOGIN INPUT SCREEN
-    elif st.session_state.auth_mode == "login":
-        with st.form(key="login_form"):
-            st.markdown(f'<div class="green-heading">{t["heading_login"]}</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="card-subtext">{t["subtext_login"]}</div>', unsafe_allow_html=True)
+# ==========================================
+# VIEW 3: BROILER SALES VIEW
+# ==========================================
+elif st.session_state.sub_view == "withdraw":
+    _, center_form, _ = st.columns([1, 2, 1])
+    with center_form:
+        if st.button(t["back_btn"], key="back_from_sales"):
+            st.session_state.sub_view = "dashboard"
+            st.rerun()
             
-            username = st.text_input(t["phone_label"])
-            password = st.text_input(t["pass_label"], type="password")
+        with st.form(key="sales_data_capture"):
+            st.markdown(f'<h3 style="color:#16300B; margin-bottom:15px; font-weight:800;">{t["sales_header"]}</h3>', unsafe_allow_html=True)
             
-            btn_col1, btn_col2 = st.columns(2)
-            with btn_col1:
-                if st.form_submit_button(t["proceed_btn"], use_container_width=True):
-                    if username and password:
-                        st.session_state.run_redirect = True
-                        st.rerun()
-                    else:
-                        st.error(t["error_fields"])
-            with btn_col2:
-                if st.form_submit_button(t["back_btn"], use_container_width=True):
-                    st.session_state.auth_mode = "landing"
-                    st.rerun()
-
-    # CASE C: SIGN UP INPUT SCREEN
-    elif st.session_state.auth_mode == "signup":
-        with st.form(key="signup_capture_form"):
-            st.markdown(f'<div class="green-heading">{t["heading_signup"]}</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="card-subtext">{t["subtext_signup"]}</div>', unsafe_allow_html=True)
+            qty = st.number_input(t["label_qty"], min_value=0, value=st.session_state.sales_qty, step=1)
+            price = st.number_input(t["label_price"], min_value=0.0, value=6500.0 if st.session_state.sales_price == 0.0 else st.session_state.sales_price, step=500.0)
             
-            new_name = st.text_input(t["name_label"])
-            new_phone = st.text_input(t["phone_signup_label"])
-            new_pass = st.text_input(t["pass_signup_label"], type="password")
-            
-            btn_col1, btn_col2 = st.columns(2)
-            with btn_col1:
-                if st.form_submit_button(t["complete_btn"], use_container_width=True):
-                    if new_name and new_phone and new_pass:
-                        st.session_state.run_redirect = True
-                        st.rerun()
-                    else:
-                        st.error(t["error_fields"])
-            with btn_col2:
-                if st.form_submit_button(t["back_btn"], use_container_width=True):
-                    st.session_state.auth_mode = "landing"
-                    st.rerun()
+            # FINISH BUTTON: Inapiga hesabu ya mauzo ya jumla na kuhifadhi muda
+            if st.form_submit_button(t["finish_sales_btn"]):
+                st.session_state.sales_qty = qty
+                st.session_state.sales_price = price
+                st.session_state.sales_revenue = float(qty * price)
+                
+                # Kuchukua Tarehe na Muda wa sasa
+                now = datetime.now()
+                st.session_state.sales_date = now.strftime("%Y-%m-%d %H:%M:%S")
+                
+                st.session_state.sub_view = "dashboard"
+                st.rerun()
