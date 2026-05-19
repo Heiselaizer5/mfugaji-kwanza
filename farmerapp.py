@@ -16,6 +16,9 @@ if "language" not in st.session_state:
 if "sub_view" not in st.session_state:
     st.session_state.sub_view = "dashboard"
 
+if "profit_calculated" not in st.session_state:
+    st.session_state.profit_calculated = False
+
 # Kuhifadhi kumbukumbu za mahesabu
 if "input_chicks_cost" not in st.session_state: st.session_state.input_chicks_cost = 0.0
 if "input_feed_cost" not in st.session_state: st.session_state.input_feed_cost = 0.0
@@ -63,6 +66,7 @@ translations = {
         "summary_header": "📊 Financial Performance Summary",
         "total_expenses": "Total Expenses (Expenditures):",
         "total_revenue": "Total Sales Revenue:",
+        "calc_profit_btn": "📈 Calculate Net Profit",
         "net_profit": "Net Profit:",
         "record_date": "Recorded on:",
         "profit_msg": "🎉 Congratulations! Your batch made a PROFIT of",
@@ -96,6 +100,7 @@ translations = {
         "summary_header": "📊 Muhtasari wa Mapato na Faida",
         "total_expenses": "Jumla ya Matumizi (Expenditure):",
         "total_revenue": "Jumla ya Mapato ya Mauzo:",
+        "calc_profit_btn": "📈 Piga Hesabu ya Net Profit",
         "net_profit": "Faida Net (Net Profit):",
         "record_date": "Tarehe ya kurekodi:",
         "profit_msg": "🎉 Hongera! Batch hii imeingiza FAIDA ya",
@@ -106,7 +111,7 @@ translations = {
 lang = st.session_state.language
 t = translations[lang]
 
-# --- CSS Styling (Vibrant Green Buttons + Pure White Cards) ---
+# --- CSS Styling (Vibrant Green Buttons + Pure White Cards + LEGIBILITY FIX) ---
 st.markdown(f"""
     <style>
     .stApp {{
@@ -129,12 +134,19 @@ st.markdown(f"""
     }}
     .brand-subtitle {{ font-size: 14px; font-family: Arial, sans-serif; color: #F0F0F0; display: block; margin-top: -5px; }}
 
-    /* White Dashboard Cards */
+    /* LEGIBILITY FIX: White Dashboard Cards NO LONGER TRANSPARENT */
     .dashboard-card {{
         background-color: #FFFFFF !important; border-radius: 16px !important;
         box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important; padding: 28px !important;
         text-align: center; margin-top: 15px;
     }}
+    
+    /* PURE WHITE BACKGROUND FOR FORMS: Removes transparency from development & expenditure forms */
+    [data-testid="stForm"], .stForm {{
+        background-color: #FFFFFF !important; border-radius: 20px !important;
+        padding: 40px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+    }}
+
     .green-card-heading {{ color: #16300B !important; font-weight: 700; font-size: 20px; margin-bottom: 10px; }}
     .card-body-text {{ color: #555555 !important; font-size: 14px; margin-bottom: 20px; min-height: 40px; }}
 
@@ -183,12 +195,14 @@ if st.session_state.sub_view == "dashboard":
         st.markdown(f'<div class="dashboard-card"><div class="green-card-heading">{t["choice_inputs"]}</div><div class="card-body-text">{t["desc_inputs"]}</div></div>', unsafe_allow_html=True)
         if st.button(t["choice_inputs"], key="go_to_inputs"):
             st.session_state.sub_view = "inputs"
+            st.session_state.profit_calculated = False # Reset calculation flag
             st.rerun()
             
     with col_dash2:
         st.markdown(f'<div class="dashboard-card"><div class="green-card-heading">{t["choice_withdraw"]}</div><div class="card-body-text">{t["desc_withdraw"]}</div></div>', unsafe_allow_html=True)
         if st.button(t["choice_withdraw"], key="go_to_sales"):
             st.session_state.sub_view = "withdraw"
+            st.session_state.profit_calculated = False # Reset calculation flag
             st.rerun()
 
     # --- LIVE NET PROFIT FINANCIAL CALCULATOR CARD ---
@@ -201,7 +215,6 @@ if st.session_state.sub_view == "dashboard":
                        st.session_state.input_med_cost + 
                        st.session_state.input_other_cost)
         total_rev = st.session_state.sales_revenue
-        net_profit = total_rev - total_costs
         
         st.markdown(f"""
         <div style="background-color: #FFFFFF; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-left: 10px solid #16300B;">
@@ -216,11 +229,17 @@ if st.session_state.sub_view == "dashboard":
                 <br><small style="color:#666;"><i>{t['record_date']} {st.session_state.sales_date}</i></small>
             </p>
             <hr style="border-color: #EEEEEE;">
-            <h4 style="color:#16300B; font-size:20px; margin: 15px 0 5px 0;"><b>{t['net_profit']}</b></h4>
         </div>
         """, unsafe_allow_html=True)
         
-        if total_costs > 0 or total_rev > 0:
+        # NET PROFIT BUTTON: Trigger calculation explicitly
+        if st.button(t["calc_profit_btn"], key="calc_profit_dashboard"):
+            st.session_state.profit_calculated = True
+            st.rerun()
+
+        # Display profit or loss status only after button is clicked
+        if st.session_state.profit_calculated:
+            net_profit = total_rev - total_costs
             if net_profit > 0:
                 st.success(f"{t['profit_msg']} {net_profit:,.2f} TSH")
             elif net_profit < 0:
@@ -236,6 +255,7 @@ elif st.session_state.sub_view == "inputs":
             st.session_state.sub_view = "dashboard"
             st.rerun()
             
+        # PURE WHITE BACKDROP FORM (NOT TRANSPARENT)
         with st.form(key="inputs_data_capture"):
             st.markdown(f'<h3 style="color:#16300B; margin-bottom:15px; font-weight:800;">{t["input_header"]}</h3>', unsafe_allow_html=True)
             
@@ -244,14 +264,13 @@ elif st.session_state.sub_view == "inputs":
             meds = st.number_input(t["label_med"], min_value=0.0, value=st.session_state.input_med_cost, step=500.0)
             other = st.number_input(t["label_other"], min_value=0.0, value=st.session_state.input_other_cost, step=500.0)
             
-            # FINISH BUTTON: Inapiga hesabu ya gharama zote na kuhifadhi muda
             if st.form_submit_button(t["finish_inputs_btn"]):
                 st.session_state.input_chicks_cost = chicks
                 st.session_state.input_feed_cost = feeds
                 st.session_state.input_med_cost = meds
                 st.session_state.input_other_cost = other
                 
-                # Kuchukua Tarehe na Muda wa sasa
+                # ATO DATING: Kuchukua Tarehe na Muda wa sasa kwa Gharama
                 now = datetime.now()
                 st.session_state.inputs_date = now.strftime("%Y-%m-%d %H:%M:%S")
                 
@@ -268,19 +287,19 @@ elif st.session_state.sub_view == "withdraw":
             st.session_state.sub_view = "dashboard"
             st.rerun()
             
+        # PURE WHITE BACKDROP FORM (NOT TRANSPARENT)
         with st.form(key="sales_data_capture"):
             st.markdown(f'<h3 style="color:#16300B; margin-bottom:15px; font-weight:800;">{t["sales_header"]}</h3>', unsafe_allow_html=True)
             
             qty = st.number_input(t["label_qty"], min_value=0, value=st.session_state.sales_qty, step=1)
             price = st.number_input(t["label_price"], min_value=0.0, value=6500.0 if st.session_state.sales_price == 0.0 else st.session_state.sales_price, step=500.0)
             
-            # FINISH BUTTON: Inapiga hesabu ya mauzo ya jumla na kuhifadhi muda
             if st.form_submit_button(t["finish_sales_btn"]):
                 st.session_state.sales_qty = qty
                 st.session_state.sales_price = price
                 st.session_state.sales_revenue = float(qty * price)
                 
-                # Kuchukua Tarehe na Muda wa sasa
+                # ATO DATING: Kuchukua Tarehe na Muda wa sasa kwa Mauzo (Same function as inputs)
                 now = datetime.now()
                 st.session_state.sales_date = now.strftime("%Y-%m-%d %H:%M:%S")
                 
