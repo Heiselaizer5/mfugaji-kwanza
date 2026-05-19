@@ -32,11 +32,10 @@ st.markdown(f"""
         z-index: 0;
     }}
 
-    /* 2. Modifying Streamlit's native header to sit nicely INSIDE the background */
+    /* 2. Make Streamlit's native header transparent so the pencil/dots float on the image */
     [data-testid="stHeader"] {{
-        background-color: transparent !important; /* Removes the solid dark bar */
+        background-color: transparent !important; /* Removes the dark bar */
         z-index: 10;
-        top: 45px !important; /* Pushes the pencil and 3 dots down below your brand title */
     }}
 
     /* Keeps elements above the dark overlay */
@@ -45,12 +44,12 @@ st.markdown(f"""
         padding-top: 3rem !important;
     }}
 
-    /* 3. Brand Title shifted to the Top-RIGHT Corner */
+    /* 3. Brand Title locked to the Top-LEFT Corner */
     .brand-title {{
         position: absolute;
         top: 25px;
-        right: 40px; /* Aligned to the right */
-        text-align: right; /* Text flushes to the right edge */
+        left: 40px; /* Locked to the left */
+        text-align: left;
         color: #FFFFFF;
         font-family: 'Arial Black', Gadget, sans-serif;
         font-weight: 900;
@@ -72,7 +71,7 @@ st.markdown(f"""
     /* 4. Custom Login Card */
     .custom-login-card {{
         background-color: #FFFFFF !important; /* Pure, solid white */
-        padding: 40px 35px 85px 35px !important; /* Added bottom padding to accommodate buttons */
+        padding: 40px 35px 85px 35px !important; 
         border-radius: 20px !important;
         box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
         text-align: center !important;
@@ -119,7 +118,7 @@ st.markdown(f"""
 
 # --- Render Elements ---
 
-# 1. Brand Logo on Top RIGHT
+# 1. Brand Logo on Top LEFT
 st.markdown("""
     <div class="brand-title">
         MFUGAJI KWANZA
