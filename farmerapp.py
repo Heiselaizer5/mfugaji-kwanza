@@ -9,18 +9,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- Initialize session states safely ---
-if "language" not in st.session_state:
-    st.session_state.language = "English"
-
-if "auth_mode" not in st.session_state:
-    st.session_state.auth_mode = "landing"
-
-if "run_redirect" not in st.session_state:
-    st.session_state.run_redirect = False
-
-# --- Safe Redirect Logic ---
-
 # --- High-Quality White Broiler Background Image Link ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
 
