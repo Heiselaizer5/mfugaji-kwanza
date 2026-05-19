@@ -8,13 +8,70 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# --- Initialize session states to track language and page mode ---
+if "language" not in st.session_state:
+    st.session_state.language = "English"
+
+if "auth_mode" not in st.session_state:
+    st.session_state.auth_mode = "landing"
+
 # --- High-Quality White Broiler Background Image Link ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
 
-# --- Complete Frontend CSS Layout Engine ---
+# --- Translation Dictionary ---
+translations = {
+    "English": {
+        "subtitle": "Modern Solutions for Every Poultry Farmer",
+        "heading_landing": "Unlock your farm's true profit potential",
+        "subtext_landing": "Log in or sign up to get started",
+        "login_btn": "Log In",
+        "signup_btn": "Sign Up",
+        "heading_login": "Welcome Back",
+        "subtext_login": "Enter details to access transactions",
+        "phone_label": "Phone Number or Email",
+        "pass_label": "Password",
+        "proceed_btn": "Proceed to Account",
+        "back_btn": "← Back",
+        "heading_signup": "Create Account",
+        "subtext_signup": "Register your poultry farm profile",
+        "name_label": "Full Farmer Name",
+        "phone_signup_label": "Phone Number (For Payments)",
+        "pass_signup_label": "Create Security Password",
+        "complete_btn": "Complete Registration",
+        "error_fields": "All fields are required.",
+        "success_reg": "Account created successfully!"
+    },
+    "Swahili": {
+        "subtitle": "Ufumbuzi wa Kisasa kwa Kila Mfugaji wa Kuku",
+        "heading_landing": "Fungua uwezo halisi wa faida wa shamba lako",
+        "subtext_landing": "Ingia au jisajili ili kuanza",
+        "login_btn": "Ingia",
+        "signup_btn": "Jisajili",
+        "heading_login": "Karibu Tena",
+        "subtext_login": "Ingiza maelezo ili kupata miamala",
+        "phone_label": "Namba ya Simu au Barua Pepe",
+        "pass_label": "Nenosiri",
+        "proceed_btn": "Endelea kwenye Akaunti",
+        "back_btn": "← Nyuma",
+        "heading_signup": "Fungua Akaunti",
+        "subtext_signup": "Sajili wasifu wa shamba lako la kuku",
+        "name_label": "Jina Kamili la Mfugaji",
+        "phone_signup_label": "Namba ya Simu (Kwa Ajili ya Malipo)",
+        "pass_signup_label": "Weka Nenosiri la Usalama",
+        "complete_btn": "Kamilisha Usajili",
+        "error_fields": "Sehemu zote zinahitajika.",
+        "success_reg": "Akaunti imefunguliwa kwa mafanikio!"
+    }
+}
+
+# Shortcut to access current translations easily
+lang = st.session_state.language
+t = translations[lang]
+
+# --- Frontend CSS Layout Engine ---
 st.markdown(f"""
     <style>
-    /* 1. Full-screen layout background */
+    /* Full-screen layout background */
     .stApp {{
         background-image: url("{broiler_bg_url}");
         background-size: cover;
@@ -23,7 +80,7 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
 
-    /* Dark background filter overlay */
+    /* Dark overlay */
     .stApp::before {{
         content: "";
         position: absolute;
@@ -32,7 +89,7 @@ st.markdown(f"""
         z-index: 0;
     }}
 
-    /* Make top app options bar transparent */
+    /* Transparent top app bar */
     [data-testid="stHeader"] {{
         background-color: transparent !important;
         z-index: 10;
@@ -43,7 +100,7 @@ st.markdown(f"""
         padding-top: 3rem !important;
     }}
 
-    /* 2. Top-Left App Title styling */
+    /* Top-Left Title "MFUGAJI KWANZA" */
     .brand-title {{
         position: absolute;
         top: 25px;
@@ -67,13 +124,7 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* 3. Bulletproof Container Override */
-    /* This targets Streamlit's container block directly and forces it to be a solid white card box */
-    div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stNotification"]) {{
-        background-color: #FFFFFF !important;
-    }}
-    
-    /* Global fallback layout logic for central box wrapper */
+    /* Rigid White Card Wrapper Container */
     .st-emotion-cache-12m0g85, [data-testid="stForm"], .stForm, div[data-testid="stVerticalBlockBorderWrapper"] {{
         background-color: #FFFFFF !important;
         border: none !important;
@@ -82,7 +133,7 @@ st.markdown(f"""
         padding: 40px !important;
         max-width: 480px !important;
         margin: auto !important;
-        margin-top: 18vh !important;
+        margin-top: 15vh !important;
     }}
 
     /* Premium Black Typography Elements */
@@ -100,7 +151,7 @@ st.markdown(f"""
         color: #444444 !important;
         font-size: 15px !important;
         text-align: center !important;
-        margin-bottom: 25px !important;
+        margin-bottom: 15px !important;
         font-family: 'Segoe UI', Arial, sans-serif !important;
     }}
 
@@ -124,37 +175,81 @@ st.markdown(f"""
     </style>
     """, unsafe_allow_html=True)
 
-# --- Render Page Elements ---
+# --- Render Elements ---
 
-# 1. Brand Logo on Top LEFT
-st.markdown("""
+# 1. Brand Logo on Top LEFT with Translated Subtitle
+st.markdown(f"""
     <div class="brand-title">
         MFUGAJI KWANZA
-        <span class="brand-subtitle">Modern Solutions for Every Poultry Farmer</span>
+        <span class="brand-subtitle">{t['subtitle']}</span>
     </div>
 """, unsafe_allow_html=True)
 
-# 2. Central Layout Grid
+# 2. Central Layout Core Router
 _, center_col, _ = st.columns([1, 1.3, 1])
 
 with center_col:
-    # Wrapping everything directly inside a Streamlit form layout.
-    # Streamlit natively forces forms to have a rigid container box structure, 
-    # ensuring the background can NEVER strip out or turn transparent!
-    with st.form(key="login_container_form", clear_on_submit=False):
-        
-        # Native black text injection inside the card box boundary
-        st.markdown('<div class="black-heading">Unlock your farm\'s true profit potential</div>', unsafe_allow_html=True)
-        st.markdown('<div class="black-subtext">Log in or sign up to get started</div>', unsafe_allow_html=True)
-        
-        # Button split row
-        btn_col1, btn_col2 = st.columns(2)
-        
-        with btn_col1:
-            if st.form_submit_button("Log In", use_container_width=True):
-                st.toast("Opening Login form...")
+    
+    # CASE A: LANDING PAGE ROUTE
+    if st.session_state.auth_mode == "landing":
+        with st.form(key="landing_form"):
+            st.markdown(f'<div class="black-heading">{t["heading_landing"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="black-subtext">{t["subtext_landing"]}</div>', unsafe_allow_html=True)
+            
+            # Pure Language Toggle Dropdown inside the card
+            chosen_lang = st.selectbox("Language / Lugha", ["English", "Swahili"], index=0 if lang == "English" else 1, label_visibility="collapsed")
+            if chosen_lang != st.session_state.language:
+                st.session_state.language = chosen_lang
+                st.rerun()
                 
-        with btn_col2:
-            # We use an alternate key identifier so the engine builds two separate button endpoints
-            if st.form_submit_button("Sign Up", use_container_width=True):
-                st.toast("Opening Sign Up form...")
+            st.write("") # Spacer
+
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                if st.form_submit_button("Log In", use_container_width=True):
+                    st.switch_page("pages/1_Transactions.py") # <--- This line routes the user
+                    st.rerun()
+            with btn_col2:
+                if st.form_submit_button(t["signup_btn"], use_container_width=True):
+                    st.session_state.auth_mode = "signup"
+                    st.rerun()
+
+    # CASE B: LOGIN INPUT ROUTE
+    elif st.session_state.auth_mode == "login":
+        with st.form(key="login_form"):
+            st.markdown(f'<div class="black-heading">{t["heading_login"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="black-subtext">{t["subtext_login"]}</div>', unsafe_allow_html=True)
+            
+            username = st.text_input(t["phone_label"])
+            password = st.text_input(t["pass_label"], type="password")
+            
+            if st.form_submit_button(t["proceed_btn"], use_container_width=True):
+                if username and password:
+                    st.switch_page("pages/1_Transactions.py")
+                else:
+                    st.error(t["error_fields"])
+            
+            if st.form_submit_button(t["back_btn"], use_container_width=True):
+                st.session_state.auth_mode = "landing"
+                st.rerun()
+
+    # CASE C: SIGN UP & CAPTURE DETAILS ROUTE
+    elif st.session_state.auth_mode == "signup":
+        with st.form(key="signup_capture_form"):
+            st.markdown(f'<div class="black-heading">{t["heading_signup"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="black-subtext">{t["subtext_signup"]}</div>', unsafe_allow_html=True)
+            
+            new_name = st.text_input(t["name_label"])
+            new_phone = st.text_input(t["phone_signup_label"])
+            new_pass = st.text_input(t["pass_signup_label"], type="password")
+            
+            if st.form_submit_button(t["complete_btn"], use_container_width=True):
+                if new_name and new_phone and new_pass:
+                    st.success(t["success_reg"])
+                    st.switch_page("pages/1_Transactions.py")
+                else:
+                    st.error(t["error_fields"])
+                    
+            if st.form_submit_button(t["back_btn"], use_container_width=True):
+                st.session_state.auth_mode = "landing"
+                st.rerun()
