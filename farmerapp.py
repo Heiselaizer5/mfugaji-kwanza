@@ -1,72 +1,55 @@
 import streamlit as st
+from datetime import date
 
-# --- Page Config ---
+# --- Config ---
 st.set_page_config(page_title="Mfugaji Kwanza", layout="wide", initial_sidebar_state="collapsed")
 
-# --- Initialize Session State ---
-if "language" not in st.session_state:
-    st.session_state.language = "English"
+# --- Initialize ---
+if "logged_in" not in st.session_state: st.session_state.logged_in = False
+if "lang" not in st.session_state: st.session_state.lang = "Swahili"
+if "view" not in st.session_state: st.session_state.view = "landing" # landing, login, signup, dashboard
 
-# --- Translations Dictionary ---
-translations = {
-    "English": {
-        "title": "MFUGAJI KWANZA",
-        "subtitle": "Modern Solutions for Every Poultry Farmer",
-        "heading": "Unlock your farm's true profit potential",
-        "subtext": "Log in or sign up to get started",
-        "lang_label": "Select Language / Chagua Lugha"
-    },
-    "Swahili": {
-        "title": "MFUGAJI KWANZA",
-        "subtitle": "Ufumbuzi wa Kisasa kwa Kila Mfugaji",
-        "heading": "Fungua uwezo halisi wa faida wa shamba lako",
-        "subtext": "Ingia au jisajili ili kuanza",
-        "lang_label": "Select Language / Chagua Lugha"
-    }
+# --- Translations ---
+t = {
+    "English": {"title": "MFUGAJI KWANZA", "login": "Login", "signup": "Sign Up", "dash": "Dashboard", "logout": "Logout", "welcome": "Welcome back, Farmer!"},
+    "Swahili": {"title": "MFUGAJI KWANZA", "login": "Ingia", "signup": "Jisajili", "dash": "Dashibodi", "logout": "Toka", "welcome": "Karibu Mfugaji!"}
 }
 
-# --- Background Image (Kuku) ---
-bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
-
-# --- CSS Styling ---
+# --- CSS (Electric Green & Branding) ---
 st.markdown(f"""
     <style>
-    .stApp {{
-        background-image: url("{bg_url}");
-        background-size: cover;
-        background-position: center;
-    }}
-    .overlay {{
-        background-color: rgba(0, 0, 0, 0.6);
-        padding: 50px;
-        border-radius: 20px;
-        text-align: center;
-        color: white;
-    }}
+    .brand-top-left {{ position: fixed; top: 15px; left: 20px; z-index: 999; color: #00E676; font-size: 28px; font-weight: 900; text-shadow: 2px 2px 4px #000; }}
+    .stApp {{ background: url("https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"); background-size: cover; background-attachment: fixed; }}
+    .stApp::before {{ content: ""; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); }}
+    div.stButton > button {{ background-color: #00E676 !important; color: #000 !important; font-weight: bold; border-radius: 10px; }}
+    .main {{ z-index: 1; }}
     </style>
+    <div class="brand-top-left">{t[st.session_state.lang]['title']}</div>
 """, unsafe_allow_html=True)
 
-# --- Logic ya Lugha ---
-lang = st.selectbox(translations[st.session_state.language]["lang_label"], ["English", "Swahili"])
-st.session_state.language = lang
-t = translations[st.session_state.language]
+# --- Translator (Juu kulia) ---
+col_lang, _ = st.columns([8, 1])
+with col_lang:
+    lang_choice = st.selectbox("", ["Swahili", "English"], index=0 if st.session_state.lang == "Swahili" else 1)
+    st.session_state.lang = lang_choice
 
-# --- UI Layout ---
-_, center_col, _ = st.columns([1, 2, 1])
-with center_col:
-    st.markdown(f"""
-        <div class="overlay">
-            <h1>{t['title']}</h1>
-            <h4>{t['subtitle']}</h4>
-            <br>
-            <h2>{t['heading']}</h2>
-            <p>{t['subtext']}</p>
-        </div>
-    """, unsafe_allow_html=True)
+# --- Main App Logic ---
+if not st.session_state.logged_in:
+    # LANDING PAGE
+    st.markdown("<br><br><br><h1 style='color:white; text-align:center;'>Welcome to Mfugaji Kwanza</h1>", unsafe_allow_html=True)
+    c1, c2, c3 = st.columns([1, 1, 1])
+    with c2:
+        if st.button(t[st.session_state.lang]['login']): st.session_state.view = "login"; st.rerun()
+        if st.button(t[st.session_state.lang]['signup']): st.session_state.view = "signup"; st.rerun()
     
-    # Hapa ndipo utaweka form yako ya Login
-    with st.form("login_form"):
-        st.text_input("Username")
-        st.text_input("Password", type="password")
-        if st.form_submit_button("Submit"):
-            st.success("Redirecting...")
+    # Hapa weka forms za login/signup kulingana na view
+else:
+    # DASHBOARD
+    st.markdown(f"<h2 style='color:#00E676;'>{t[st.session_state.lang]['dash']}</h2>", unsafe_allow_html=True)
+    st.write(f"### {t[st.session_state.lang]['welcome']}")
+    
+    # Hapa weka zile transactions zako
+    if st.button(t[st.session_state.lang]['logout']): 
+        st.session_state.logged_in = False
+        st.session_state.view = "landing"
+        st.rerun()
