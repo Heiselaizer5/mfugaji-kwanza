@@ -8,26 +8,17 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- Initialize session states to track language and page routing safely ---
+# --- Initialize session states safely ---
 if "language" not in st.session_state:
     st.session_state.language = "English"
 
 if "auth_mode" not in st.session_state:
     st.session_state.auth_mode = "landing"
 
-if "redirect_to_transactions" not in st.session_state:
-    st.session_state.redirect_to_transactions = False
-
-# --- SAFE MULTIPAGE ROUTING FLAG CHECK ---
-# Checking this outside the form prevents the red StreamlitAPIException crash!
-if st.session_state.redirect_to_transactions:
-    st.session_state.redirect_to_transactions = False
-    st.switch_page("pages/1_Transactions.py")
-
 # --- High-Quality White Broiler Background Image Link ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
 
-# --- Translation Dictionary ---
+# --- Translation Dictionary (Fixed to translate landing buttons too) ---
 translations = {
     "English": {
         "subtitle": "Modern Solutions for Every Poultry Farmer",
@@ -73,11 +64,11 @@ translations = {
     }
 }
 
-# Access translations safely
+# Access translations dynamically
 lang = st.session_state.language
 t = translations[lang]
 
-# --- Frontend CSS Layout Engine ---
+# --- Frontend CSS Layout Engine (White & Premium Green Theme) ---
 st.markdown(f"""
     <style>
     /* Full-screen layout background */
@@ -89,7 +80,7 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
 
-    /* Dark overlay */
+    /* Dark overlay over background image */
     .stApp::before {{
         content: "";
         position: absolute;
@@ -133,9 +124,9 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* Rigid White Card Wrapper Container */
-    .st-emotion-cache-12m0g85, [data-testid="stForm"], .stForm, div[data-testid="stVerticalBlockBorderWrapper"] {{
-        background-color: #FFFFFF !important;
+    /* Solid White Card Container Box */
+    .stForm, div[data-testid="stVerticalBlockBorderWrapper"] {{
+        background-color: rgba(255, 255, 255, 0.98) !important;
         border: none !important;
         border-radius: 20px !important;
         box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
@@ -145,9 +136,9 @@ st.markdown(f"""
         margin-top: 15vh !important;
     }}
 
-    /* Clean Card Typography Elements */
-    .black-heading {{
-        color: #111111 !important;
+    /* Premium Dark Green Headings */
+    .green-heading {{
+        color: #16300B !important;
         font-weight: 800 !important;
         font-size: 26px !important;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
@@ -156,7 +147,7 @@ st.markdown(f"""
         line-height: 1.3 !important;
     }}
     
-    .black-subtext {{
+    .card-subtext {{
         color: #555555 !important;
         font-size: 15px !important;
         text-align: center !important;
@@ -164,16 +155,16 @@ st.markdown(f"""
         font-family: 'Segoe UI', Arial, sans-serif !important;
     }}
 
-    /* CRITICAL COLOR FIX FOR LABELS: Forces input labels to be dark charcoal gray and visible */
+    /* HIGH LEGIBILITY INPUT LABELS: Forces text labels to be dark, sharp, and easy to see */
     label[data-testid="stWidgetLabel"] p {{
-        color: #222222 !important;
+        color: #111111 !important;
         font-weight: 600 !important;
         font-size: 15px !important;
     }}
 
-    /* Sleek Solid Black Buttons */
+    /* Premium Green Buttons */
     div.stButton > button {{
-        background-color: #111111 !important;
+        background-color: #16300B !important;
         color: #FFFFFF !important;
         border-radius: 8px !important;
         border: none !important;
@@ -185,7 +176,7 @@ st.markdown(f"""
     }}
     
     div.stButton > button:hover {{
-        background-color: #333333 !important;
+        background-color: #244C13 !important;
         transform: scale(1.02);
     }}
     </style>
@@ -193,7 +184,7 @@ st.markdown(f"""
 
 # --- Render Elements ---
 
-# 1. Brand Logo on Top LEFT with Translated Subtitle
+# 1. Brand Logo on Top LEFT
 st.markdown(f"""
     <div class="brand-title">
         MFUGAJI KWANZA
@@ -206,13 +197,13 @@ _, center_col, _ = st.columns([1, 1.3, 1])
 
 with center_col:
     
-    # CASE A: LANDING PAGE ROUTE
+    # CASE A: LANDING SCREEN
     if st.session_state.auth_mode == "landing":
         with st.form(key="landing_form"):
-            st.markdown(f'<div class="black-heading">{t["heading_landing"]}</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="black-subtext">{t["subtext_landing"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="green-heading">{t["heading_landing"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-subtext">{t["subtext_landing"]}</div>', unsafe_allow_html=True)
             
-            # Language Toggle Selector Dropdown inside the card
+            # Language Dropdown inside the white card
             chosen_lang = st.selectbox("Language / Lugha", ["English", "Swahili"], index=0 if lang == "English" else 1)
             if chosen_lang != st.session_state.language:
                 st.session_state.language = chosen_lang
@@ -222,31 +213,27 @@ with center_col:
 
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
-                # FIXED: Pulled text cleanly from our translation lookup arrays!
                 if st.form_submit_button(t["login_btn"], use_container_width=True):
                     st.session_state.auth_mode = "login"
                     st.rerun()
             with btn_col2:
-                # FIXED: Pulled text cleanly from our translation lookup arrays!
                 if st.form_submit_button(t["signup_btn"], use_container_width=True):
                     st.session_state.auth_mode = "signup"
                     st.rerun()
 
-    # CASE B: LOGIN INPUT ROUTE
+    # CASE B: LOGIN INPUT SCREEN
     elif st.session_state.auth_mode == "login":
         with st.form(key="login_form"):
-            st.markdown(f'<div class="black-heading">{t["heading_login"]}</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="black-subtext">{t["subtext_login"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="green-heading">{t["heading_login"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-subtext">{t["subtext_login"]}</div>', unsafe_allow_html=True)
             
-            # FIXED: Input labels are now completely readable against the card canvas color
             username = st.text_input(t["phone_label"])
             password = st.text_input(t["pass_label"], type="password")
             
             if st.form_submit_button(t["proceed_btn"], use_container_width=True):
                 if username and password:
-                    # FIXED: Instead of calling st.switch_page inside the form block, we set our clean flag trigger
-                    st.session_state.redirect_to_transactions = True
-                    st.rerun()
+                    # Clear error bar crash by switching pages right here on action submit!
+                    st.switch_page("pages/1_Transactions.py")
                 else:
                     st.error(t["error_fields"])
             
@@ -254,13 +241,12 @@ with center_col:
                 st.session_state.auth_mode = "landing"
                 st.rerun()
 
-    # CASE C: SIGN UP & CAPTURE DETAILS ROUTE
+    # CASE C: SIGN UP INPUT SCREEN
     elif st.session_state.auth_mode == "signup":
         with st.form(key="signup_capture_form"):
-            st.markdown(f'<div class="black-heading">{t["heading_signup"]}</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="black-subtext">{t["subtext_signup"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="green-heading">{t["heading_signup"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-subtext">{t["subtext_signup"]}</div>', unsafe_allow_html=True)
             
-            # FIXED: Input labels are now completely readable against the card canvas color
             new_name = st.text_input(t["name_label"])
             new_phone = st.text_input(t["phone_signup_label"])
             new_pass = st.text_input(t["pass_signup_label"], type="password")
@@ -268,8 +254,7 @@ with center_col:
             if st.form_submit_button(t["complete_btn"], use_container_width=True):
                 if new_name and new_phone and new_pass:
                     st.success(t["success_reg"])
-                    st.session_state.redirect_to_transactions = True
-                    st.rerun()
+                    st.switch_page("pages/1_Transactions.py")
                 else:
                     st.error(t["error_fields"])
                     
