@@ -35,6 +35,7 @@ st.markdown(f"""
     /* Keeps elements above the dark overlay */
     [data-testid="stHeader"], .main .block-container {{
         z-index: 1;
+        padding-top: 2rem !important;
     }}
 
     /* 2. Top-Left Title "MFUGAJI KWANZA" */
@@ -59,37 +60,35 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* 3. Target the Streamlit Container block to act as our card */
-    [data-testid="stVerticalBlockBorderWrapper"] {{
-        background-color: rgba(255, 255, 255, 0.96) !important;
-        padding: 40px !important;
+    /* 3. The Custom Login Card (Forced Solid White Background) */
+    .custom-login-card {{
+        background-color: #FFFFFF !important; /* Pure, solid white */
+        padding: 40px 35px !important;
         border-radius: 20px !important;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.5) !important;
-        max-width: 500px;
-        margin: auto;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
+        text-align: center !important;
         margin-top: 15vh;
+        border: 1px solid #E0E0E0;
     }}
 
     /* Text styling inside the card */
     .login-heading {{
-        color: #16300B; 
-        font-weight: 700;
-        font-size: 28px;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        text-align: center;
-        margin-bottom: 10px;
-        line-height: 1.2;
+        color: #16300B !important; /* Premium Dark Green */
+        font-weight: 700 !important;
+        font-size: 26px !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        margin-bottom: 12px !important;
+        line-height: 1.3 !important;
     }}
     
     .login-subtext {{
-        color: #555555;
-        font-size: 15px;
-        text-align: center;
-        margin-bottom: 25px;
-        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #555555 !important;
+        font-size: 15px !important;
+        margin-bottom: 30px !important;
+        font-family: 'Segoe UI', Arial, sans-serif !important;
     }}
 
-    /* Custom Green Buttons */
+    /* Custom Premium Green Buttons */
     div.stButton > button {{
         background-color: #16300B !important;
         color: white !important;
@@ -120,16 +119,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 2. Centered Layout Column
-_, center_col, _ = st.columns([1, 1.5, 1])
+_, center_col, _ = st.columns([1, 1.4, 1])
 
 with center_col:
-    # Creating a native Streamlit container with a border. 
-    # Our CSS target above overrides this border to turn it into a beautiful white card.
-    with st.container(border=True):
-        st.markdown('<div class="login-heading">Unlock your farm\'s true profit potential</div>', unsafe_allow_html=True)
-        st.markdown('<div class="login-subtext">Log in or sign up to get started</div>', unsafe_allow_html=True)
+    # We use st.container to group the items, but we inject our own hardcoded HTML classes inside it
+    with st.container():
+        st.markdown('''
+            <div class="custom-login-card">
+                <div class="login-heading">Unlock your farm's true profit potential</div>
+                <div class="login-subtext">Log in or sign up to get started</div>
+            </div>
+        ''', unsafe_allow_html=True)
         
-        # Grid layout for buttons right inside the container
+        # Pull the buttons slightly up into the white card space using a standard layout grid
+        st.markdown('<div style="margin-top: -55px; padding: 0px 35px 35px 35px;">', unsafe_allow_html=True)
         btn_col1, btn_col2 = st.columns(2)
         
         with btn_col1:
@@ -139,3 +142,4 @@ with center_col:
         with btn_col2:
             if st.button("Sign Up", key="signup_btn", use_container_width=True):
                 st.toast("Opening Sign Up form...")
+        st.markdown('</div>', unsafe_allow_html=True)
