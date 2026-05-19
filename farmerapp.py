@@ -2,7 +2,7 @@ import streamlit as st
 
 # --- Must be the first Streamlit command ---
 st.set_page_config(
-    page_title="Mfugaji Kwanza - Login",
+    page_title="Mfugeji Kwanza - Login",
     page_icon="🐔",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -18,9 +18,9 @@ if "auth_mode" not in st.session_state:
 if "run_redirect" not in st.session_state:
     st.session_state.run_redirect = False
 
-# --- THE PERMANENT ERROR FIX: Switch page safely OUTSIDE of the forms ---
+# --- Safe Redirect Logic ---
 if st.session_state.run_redirect:
-    st.session_state.run_redirect = False  # Reset flag
+    st.session_state.run_redirect = False  
     st.switch_page("pages/1_Transactions.py")
 
 # --- High-Quality White Broiler Background Image Link ---
@@ -143,7 +143,7 @@ st.markdown(f"""
         margin-top: 15vh !important;
     }}
 
-    /* PREMIUM DARK GREEN HEDINGS */
+    /* PREMIUM DARK GREEN HEADINGS */
     .green-heading {{
         color: #16300B !important;
         font-weight: 800 !important;
@@ -162,18 +162,20 @@ st.markdown(f"""
         font-family: 'Segoe UI', Arial, sans-serif !important;
     }}
 
-    /* HIGH LEGIBILITY INPUT LABELS (Dark Forest Green) */
+    /* HIGH LEGIBILITY INPUT LABELS */
     label[data-testid="stWidgetLabel"] p {{
         color: #16300B !important;
         font-weight: 700 !important;
         font-size: 15px !important;
     }}
 
-    /* VIBRANT ELECTRIC GREEN BUTTONS (Matching your screenshot sample) */
-    div.stButton > button {{
+    /* CRITICAL FIX: Explicitly target both general buttons AND form submit buttons 
+       to force the bright electric green layout override.
+    */
+    div.stButton > button, div.stFormSubmitButton > button {{
         background-color: #00E676 !important; /* Vivid Electric Green */
         color: #000000 !important;          /* Sharp Black Text */
-        border-radius: 12px !important;       /* Clean rounded edges */
+        border-radius: 12px !important;       
         border: none !important;
         padding: 12px 20px !important;
         font-size: 16px !important;
@@ -183,8 +185,8 @@ st.markdown(f"""
         transition: all 0.2s ease-in-out;
     }}
     
-    div.stButton > button:hover {{
-        background-color: #00C853 !important; /* Slightly deeper green on hover */
+    div.stButton > button:hover, div.stFormSubmitButton > button:hover {{
+        background-color: #00C853 !important; 
         box-shadow: 0 6px 16px rgba(0, 230, 118, 0.5) !important;
         transform: scale(1.02);
     }}
@@ -242,7 +244,6 @@ with center_col:
             with btn_col1:
                 if st.form_submit_button(t["proceed_btn"], use_container_width=True):
                     if username and password:
-                        # Set flag and rerun so the safe switch outside the form block catches it!
                         st.session_state.run_redirect = True
                         st.rerun()
                     else:
