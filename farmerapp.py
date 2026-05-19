@@ -19,10 +19,14 @@ if "run_redirect" not in st.session_state:
     st.session_state.run_redirect = False
 
 # --- Safe Redirect Logic ---
-if st.session_state.run_redirect:
-    st.session_state.run_redirect = False  
-    st.switch_page("pages/1_Transactions.py")
-
+# Badala ya switch_page, tunatumia logic hii kuonyesha Dashboard
+if st.session_state.get("run_redirect", False):
+    st.title("📊 Dashboard")
+    st.write("Karibu mfugaji! Hapa ndipo miamala yako itakapokuwa.")
+    if st.button("Logout"):
+        st.session_state.run_redirect = False
+        st.rerun()
+    st.stop() # Hii inazuia login form isionekane baada ya kuingia
 # --- High-Quality White Broiler Background Image Link ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
 
