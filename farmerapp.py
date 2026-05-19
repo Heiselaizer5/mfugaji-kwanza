@@ -15,6 +15,14 @@ if "language" not in st.session_state:
 if "auth_mode" not in st.session_state:
     st.session_state.auth_mode = "landing"
 
+if "run_redirect" not in st.session_state:
+    st.session_state.run_redirect = False
+
+# --- THE PERMANENT ERROR FIX: Switch page safely OUTSIDE of the forms ---
+if st.session_state.run_redirect:
+    st.session_state.run_redirect = False  # Reset flag
+    st.switch_page("pages/1_Transactions.py")
+
 # --- High-Quality White Broiler Background Image Link ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
 
@@ -67,7 +75,7 @@ translations = {
 lang = st.session_state.language
 t = translations[lang]
 
-# --- Frontend CSS Layout Engine (White Card + Green Accents) ---
+# --- Frontend CSS Layout Engine ---
 st.markdown(f"""
     <style>
     /* Full-screen layout background */
@@ -123,7 +131,7 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* SOLID WHITE CARD CONTAINER BOX */
+    /* SOLID PURE WHITE CARD CONTAINER BOX */
     .stForm, div[data-testid="stVerticalBlockBorderWrapper"] {{
         background-color: #FFFFFF !important;
         border: none !important;
@@ -135,7 +143,7 @@ st.markdown(f"""
         margin-top: 15vh !important;
     }}
 
-    /* PREMIUM GREEN TYPOGRAPHY FOR HEADINGS */
+    /* PREMIUM DARK GREEN HEDINGS */
     .green-heading {{
         color: #16300B !important;
         font-weight: 800 !important;
@@ -147,35 +155,37 @@ st.markdown(f"""
     }}
     
     .card-subtext {{
-        color: #444444 !important;
+        color: #555555 !important;
         font-size: 15px !important;
         text-align: center !important;
         margin-bottom: 20px !important;
         font-family: 'Segoe UI', Arial, sans-serif !important;
     }}
 
-    /* HIGH LEGIBILITY INPUT LABELS (Green/Dark) */
+    /* HIGH LEGIBILITY INPUT LABELS (Dark Forest Green) */
     label[data-testid="stWidgetLabel"] p {{
         color: #16300B !important;
         font-weight: 700 !important;
         font-size: 15px !important;
     }}
 
-    /* PREMIUM GREEN BUTTONS */
+    /* VIBRANT ELECTRIC GREEN BUTTONS (Matching your screenshot sample) */
     div.stButton > button {{
-        background-color: #16300B !important;
-        color: #FFFFFF !important;
-        border-radius: 8px !important;
+        background-color: #00E676 !important; /* Vivid Electric Green */
+        color: #000000 !important;          /* Sharp Black Text */
+        border-radius: 12px !important;       /* Clean rounded edges */
         border: none !important;
         padding: 12px 20px !important;
         font-size: 16px !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
         letter-spacing: 0.5px;
+        box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3) !important;
         transition: all 0.2s ease-in-out;
     }}
     
     div.stButton > button:hover {{
-        background-color: #244C13 !important;
+        background-color: #00C853 !important; /* Slightly deeper green on hover */
+        box-shadow: 0 6px 16px rgba(0, 230, 118, 0.5) !important;
         transform: scale(1.02);
     }}
     </style>
@@ -232,8 +242,9 @@ with center_col:
             with btn_col1:
                 if st.form_submit_button(t["proceed_btn"], use_container_width=True):
                     if username and password:
-                        # SAFE ROUTING: Triggers page move instantly on click execution
-                        st.switch_page("pages/1_Transactions.py")
+                        # Set flag and rerun so the safe switch outside the form block catches it!
+                        st.session_state.run_redirect = True
+                        st.rerun()
                     else:
                         st.error(t["error_fields"])
             with btn_col2:
@@ -255,7 +266,8 @@ with center_col:
             with btn_col1:
                 if st.form_submit_button(t["complete_btn"], use_container_width=True):
                     if new_name and new_phone and new_pass:
-                        st.switch_page("pages/1_Transactions.py")
+                        st.session_state.run_redirect = True
+                        st.rerun()
                     else:
                         st.error(t["error_fields"])
             with btn_col2:
