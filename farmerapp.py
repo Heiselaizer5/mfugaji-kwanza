@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime, date
 
 # 1. Page Config
-st.set_page_config(page_title="Mfugaji Kwanza", layout="wide")
+st.set_page_config(page_title="MfugajiKwanza", layout="wide")
 
 # 2. Session State
 if "view" not in st.session_state:
