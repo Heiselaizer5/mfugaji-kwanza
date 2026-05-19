@@ -68,41 +68,38 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* 3. Style the native Streamlit container directly as the white card */
-    /* This completely eliminates layout fighting and shaking */
-    [data-testid="stVerticalBlockBorderWrapper"] {{
-        background-color: rgba(255, 255, 255, 0.98) !important;
+    /* 3. The Custom White Card Box (Guaranteed Solid Box) */
+    .custom-card-wrapper {{
+        background-color: rgb(255, 255, 255) !important; /* Forced solid white */
         padding: 40px !important;
         border-radius: 20px !important;
         box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
         max-width: 480px;
         margin: auto;
         margin-top: 20vh;
-        border: none !important;
+        text-align: center;
     }}
 
-    /* Custom Text elements inside the card block */
+    /* Bold Black Text styling inside the card */
     .login-heading {{
-        color: #16300B !important; 
-        font-weight: 700 !important;
+        color: #000000 !important; /* Premium Bold Black */
+        font-weight: 800 !important;
         font-size: 26px !important;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-        text-align: center;
-        margin-bottom: 8px;
-        line-height: 1.3;
+        margin-bottom: 8px !important;
+        line-height: 1.3 !important;
     }}
     
     .login-subtext {{
-        color: #555555 !important;
+        color: #444444 !important; /* Charcoal for readability */
         font-size: 15px !important;
-        text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 25px !important;
         font-family: 'Segoe UI', Arial, sans-serif !important;
     }}
 
-    /* Custom Premium Green Buttons */
+    /* Sleek Solid Black Buttons */
     div.stButton > button {{
-        background-color: #16300B !important;
+        background-color: #000000 !important; /* Solid Black */
         color: white !important;
         border-radius: 8px !important;
         border: none !important;
@@ -114,7 +111,7 @@ st.markdown(f"""
     }}
     
     div.stButton > button:hover {{
-        background-color: #244C13 !important;
+        background-color: #222222 !important; /* Soft dark gray on hover */
         transform: scale(1.02);
     }}
     </style>
@@ -134,19 +131,22 @@ st.markdown("""
 _, center_col, _ = st.columns([1, 1.3, 1])
 
 with center_col:
-    # By using Streamlit's native container with a border, we let the app engine 
-    # calculate layout dimensions naturally. Our CSS turns it into the beautiful white card.
-    with st.container(border=True):
-        st.markdown('<div class="login-heading">Unlock your farm\'s true profit potential</div>', unsafe_allow_html=True)
-        st.markdown('<div class="login-subtext">Log in or sign up to get started</div>', unsafe_allow_html=True)
-        
-        # Grid layout for buttons sits cleanly on the grid path
-        btn_col1, btn_col2 = st.columns(2)
-        
-        with btn_col1:
-            if st.button("Log In", key="login_btn", use_container_width=True):
-                st.toast("Opening Login form...")
-                
-        with btn_col2:
-            if st.button("Sign Up", key="signup_btn", use_container_width=True):
-                st.toast("Opening Sign Up form...")
+    # Custom HTML container div block that forces the solid white box color
+    st.markdown('<div class="custom-card-wrapper">', unsafe_allow_html=True)
+    
+    st.markdown('<div class="login-heading">Unlock your farm\'s true profit potential</div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-subtext">Log in or sign up to get started</div>', unsafe_allow_html=True)
+    
+    # Grid layout for buttons sitting inside the card
+    btn_col1, btn_col2 = st.columns(2)
+    
+    with btn_col1:
+        if st.button("Log In", key="login_btn", use_container_width=True):
+            st.toast("Opening Login form...")
+            
+    with btn_col2:
+        if st.button("Sign Up", key="signup_btn", use_container_width=True):
+            st.toast("Opening Sign Up form...")
+            
+    # Close the custom HTML container block
+    st.markdown('</div>', unsafe_allow_html=True)
