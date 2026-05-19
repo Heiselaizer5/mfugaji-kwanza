@@ -1,13 +1,12 @@
 import streamlit as st
 from datetime import datetime, date
 
-# --- Must be the first Streamlit command ---
-st.set_page_config(
-    page_title="Mfugaji Kwanza - Login",
-    page_icon="🐔",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
+# 1. Page Config
+st.set_page_config(page_title="Mfugaji Kwanza", layout="wide")
+
+# 2. Session State
+if "view" not in st.session_state:
+    st.session_state.view = "login"
 
 # --- High-Quality White Broiler Background Image Link ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
