@@ -1,45 +1,41 @@
 import streamlit as st
 
-# Page Config
+# Configure the page
 st.set_page_config(page_title="Mfugaji Kwanza", layout="wide")
 
-# CSS ya White Board na Styling
+# CSS to fix layout, styling, and branding
 st.markdown("""
     <style>
     .stApp { background: url("https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600"); background-size: cover; }
     .white-board { background: white; padding: 40px; border-radius: 25px; color: black; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 50px; }
-    .title-text { font-size: 24px; font-weight: bold; margin-bottom: 5px; color: #333; text-align: center; }
-    .desc-text { font-size: 16px; color: #666; margin-bottom: 30px; text-align: center; }
+    .brand-title { font-size: 28px; font-weight: 900; text-align: center; color: #333; }
+    .sub-text { text-align: center; color: #666; margin-bottom: 20px; }
     div.stButton > button { background-color: #008000 !important; color: white !important; font-weight: bold; border-radius: 10px; width: 100%; }
-    .stSelectbox { width: 200px !important; margin-left: auto; }
     </style>
 """, unsafe_allow_html=True)
 
-# Translator
-lang = st.selectbox("Language / Lugha", ["English", "Swahili"])
-
-# Layout
+# Layout container
 _, col_main, _ = st.columns([1, 1.2, 1])
 
 with col_main:
     st.markdown('<div class="white-board">', unsafe_allow_html=True)
-    st.markdown('<p class="title-text">MFUGAJI KWANZA</p>', unsafe_allow_html=True)
-    st.markdown('<p class="desc-text">' + 
-                ("Modern Poultry Management Solutions" if lang == "English" else "Suluhisho za Kisasa za Ufugaji wa Kuku") + 
-                '</p>', unsafe_allow_html=True)
+    st.markdown('<p class="brand-title">MFUGAJI KWANZA</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sub-text">Modern Poultry Management Solutions</p>', unsafe_allow_html=True)
     
-    # Tabs za Login na Signup
-    tab1, tab2 = st.tabs(["Login" if lang == "English" else "Ingia", "Sign Up" if lang == "English" else "Jisajili"])
+    # Use tabs to isolate elements, preventing DuplicateElementId errors
+    tab1, tab2 = st.tabs(["Login", "Sign Up"])
     
     with tab1:
-        st.text_input("Username" if lang == "English" else "Jina la Mtumiaji")
-        st.text_input("Password" if lang == "English" else "Nenosiri", type="password")
-        st.button("Login" if lang == "English" else "Ingia")
+        st.text_input("Username", key="login_user")
+        st.text_input("Password", type="password", key="login_pass")
+        if st.button("Login", key="login_btn"):
+            st.success("Accessing Dashboard...")
             
     with tab2:
-        st.text_input("Full Name" if lang == "English" else "Jina Kamili")
-        st.text_input("Phone Number" if lang == "English" else "Namba ya Simu")
-        st.text_input("Password" if lang == "English" else "Nenosiri", type="password")
-        st.button("Register" if lang == "English" else "Jisajili")
+        st.text_input("Full Name", key="signup_name")
+        st.text_input("Phone Number", key="signup_phone")
+        st.text_input("Password", type="password", key="signup_pass")
+        if st.button("Register", key="signup_btn"):
+            st.success("Account Created!")
             
     st.markdown('</div>', unsafe_allow_html=True)
