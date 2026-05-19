@@ -32,23 +32,32 @@ st.markdown(f"""
         z-index: 0;
     }}
 
-    /* Keeps elements above the dark overlay */
-    [data-testid="stHeader"], .main .block-container {{
-        z-index: 1;
-        padding-top: 2rem !important;
+    /* 2. Modifying Streamlit's native header to sit nicely INSIDE the background */
+    [data-testid="stHeader"] {{
+        background-color: transparent !important; /* Removes the solid dark bar */
+        z-index: 10;
+        top: 45px !important; /* Pushes the pencil and 3 dots down below your brand title */
     }}
 
-    /* 2. Top-Left Title "MFUGAJI KWANZA" */
+    /* Keeps elements above the dark overlay */
+    .main .block-container {{
+        z-index: 1;
+        padding-top: 3rem !important;
+    }}
+
+    /* 3. Brand Title shifted to the Top-RIGHT Corner */
     .brand-title {{
         position: absolute;
-        top: 30px;
-        left: 40px;
+        top: 25px;
+        right: 40px; /* Aligned to the right */
+        text-align: right; /* Text flushes to the right edge */
         color: #FFFFFF;
         font-family: 'Arial Black', Gadget, sans-serif;
         font-weight: 900;
         font-size: 38px;
         letter-spacing: 2px;
         text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+        z-index: 100;
     }}
     
     .brand-subtitle {{
@@ -60,20 +69,20 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* 3. The Custom Login Card (Forced Solid White Background) */
+    /* 4. Custom Login Card */
     .custom-login-card {{
         background-color: #FFFFFF !important; /* Pure, solid white */
-        padding: 40px 35px !important;
+        padding: 40px 35px 85px 35px !important; /* Added bottom padding to accommodate buttons */
         border-radius: 20px !important;
         box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
         text-align: center !important;
-        margin-top: 15vh;
+        margin-top: 20vh;
         border: 1px solid #E0E0E0;
     }}
 
     /* Text styling inside the card */
     .login-heading {{
-        color: #16300B !important; /* Premium Dark Green */
+        color: #16300B !important; 
         font-weight: 700 !important;
         font-size: 26px !important;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
@@ -110,7 +119,7 @@ st.markdown(f"""
 
 # --- Render Elements ---
 
-# 1. Title on top-left
+# 1. Brand Logo on Top RIGHT
 st.markdown("""
     <div class="brand-title">
         MFUGAJI KWANZA
@@ -122,7 +131,6 @@ st.markdown("""
 _, center_col, _ = st.columns([1, 1.4, 1])
 
 with center_col:
-    # We use st.container to group the items, but we inject our own hardcoded HTML classes inside it
     with st.container():
         st.markdown('''
             <div class="custom-login-card">
@@ -131,8 +139,8 @@ with center_col:
             </div>
         ''', unsafe_allow_html=True)
         
-        # Pull the buttons slightly up into the white card space using a standard layout grid
-        st.markdown('<div style="margin-top: -55px; padding: 0px 35px 35px 35px;">', unsafe_allow_html=True)
+        # Pull the buttons neatly inside the white card container boundary
+        st.markdown('<div style="margin-top: -75px; padding: 0px 35px 35px 35px;">', unsafe_allow_html=True)
         btn_col1, btn_col2 = st.columns(2)
         
         with btn_col1:
